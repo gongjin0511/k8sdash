@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K8s Dashboard - 节点管理</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --sidebar-bg: #242e42;
+            --sidebar-hover: #36435c;
+            --sidebar-active: #55bc8a;
+            --header-bg: #ffffff;
+            --content-bg: #f9fbfd;
+            --primary-color: #329dce;
+            --success-color: #55bc8a;
+            --warning-color: #f5a623;
+            --danger-color: #ca2621;
+            --text-primary: #242e42;
+            --text-secondary: #79879c;
+            --border-color: #d8dee5;
+            --card-bg: #ffffff;
+            --card-shadow: 0 1px 4px rgba(36, 46, 66, 0.12);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            font-size: 14px;
+            line-height: 1.67;
+            color: var(--text-primary);
+            background-color: var(--content-bg);
+        }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        .sidebar-logo {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-logo h1 {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-icon {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, #329dce, #55bc8a);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .nav-section { padding: 12px 0; }
+        .nav-section-title {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            padding: 8px 20px;
+            text-transform: uppercase;
+        }
+        .nav-menu { list-style: none; }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
+        .nav-link.active {
+            background: var(--sidebar-hover);
+            color: #fff;
+            border-left: 3px solid var(--sidebar-active);
+            padding-left: 17px;
+        }
+        .nav-icon { width: 20px; height: 20px; margin-right: 12px; display: flex; align-items: center; justify-content: center; }
+        .nav-arrow { margin-left: auto; transition: transform 0.2s; font-size: 12px; }
+        .nav-item.expanded .nav-arrow { transform: rotate(90deg); }
+        .nav-submenu { list-style: none; display: none; background: rgba(0, 0, 0, 0.15); }
+        .nav-item.expanded .nav-submenu { display: block; }
+        .nav-submenu .nav-link { padding-left: 52px; font-size: 13px; }
+        .nav-submenu .nav-link.active { padding-left: 49px; }
+        .main { flex: 1; margin-left: 260px; display: flex; flex-direction: column; min-height: 100vh; }
+        .header {
+            height: 60px;
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .breadcrumb { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); }
+        .breadcrumb a { color: var(--text-secondary); text-decoration: none; }
+        .breadcrumb a:hover { color: var(--primary-color); }
+        .breadcrumb span:last-child { color: var(--text-primary); font-weight: 500; }
+        .header-actions { display: flex; align-items: center; gap: 16px; }
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--content-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 6px 16px;
+            width: 280px;
+        }
+        .search-box input { border: none; background: transparent; outline: none; width: 100%; font-size: 13px; margin-left: 8px; }
+        .header-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; color: var(--text-secondary); }
+        .header-icon:hover { background: var(--content-bg); }
+        .user-avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #329dce, #55bc8a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .content { padding: 24px; flex: 1; }
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .page-title { font-size: 20px; font-weight: 600; }
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 4px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .stat-value.success { color: var(--success-color); }
+        .stat-value.warning { color: var(--warning-color); }
+        .stat-value.danger { color: var(--danger-color); }
+        .stat-label { color: var(--text-secondary); font-size: 13px; }
+        .card { background: var(--card-bg); border-radius: 4px; box-shadow: var(--card-shadow); }
+        .card-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .card-title { font-size: 14px; font-weight: 600; }
+        .node-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 16px;
+            padding: 20px;
+        }
+        .node-card {
+            background: var(--content-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.2s;
+        }
+        .node-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px rgba(36, 46, 66, 0.1);
+        }
+        .node-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .node-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .node-icon {
+            width: 40px; height: 40px;
+            background: rgba(50, 157, 206, 0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .node-name {
+            font-weight: 600;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+        .node-name:hover { text-decoration: underline; }
+        .node-ip { font-size: 12px; color: var(--text-secondary); }
+        .node-role {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .node-role.master {
+            background: rgba(50, 157, 206, 0.1);
+            color: var(--primary-color);
+        }
+        .node-role.worker {
+            background: rgba(85, 188, 138, 0.1);
+            color: var(--success-color);
+        }
+        .node-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-badge.ready { background: rgba(85, 188, 138, 0.1); color: var(--success-color); }
+        .status-badge.notready { background: rgba(202, 38, 33, 0.1); color: var(--danger-color); }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        .node-labels {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .label-tag {
+            padding: 2px 8px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .node-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        .metric-item {
+            text-align: center;
+            padding: 12px;
+            background: var(--card-bg);
+            border-radius: 4px;
+        }
+        .metric-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .metric-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        .metric-bar {
+            height: 4px;
+            background: var(--border-color);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .metric-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+        .metric-fill.low { background: var(--success-color); }
+        .metric-fill.medium { background: var(--warning-color); }
+        .metric-fill.high { background: var(--danger-color); }
+        .node-details {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 12px;
+        }
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+        }
+        .detail-label { color: var(--text-secondary); }
+        .detail-value { color: var(--text-primary); font-weight: 500; }
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; }
+            .sidebar-logo h1 span, .nav-section-title, .nav-link span, .nav-arrow { display: none; }
+            .nav-link { justify-content: center; padding: 12px; }
+            .nav-icon { margin-right: 0; }
+            .main { margin-left: 60px; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .node-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h1><span class="logo-icon">K8</span><span>K8s Dashboard</span></h1>
+            </div>
+            <nav class="nav-section">
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="index.html" class="nav-link"><span class="nav-icon">🏠</span><span>工作台</span></a></li>
+                </ul>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">集群管理</div>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="cluster.html" class="nav-link"><span class="nav-icon">⚙️</span><span>集群概览</span></a></li>
+                    <li class="nav-item"><a href="nodes.html" class="nav-link active"><span class="nav-icon">🖥️</span><span>节点管理</span></a></li>
+                </ul>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">应用负载</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <div class="nav-link" onclick="toggleSubmenu(this)"><span class="nav-icon">📦</span><span>工作负载</span><span class="nav-arrow">▶</span></div>
+                        <ul class="nav-submenu">
+                            <li><a href="workloads.html" class="nav-link">Deployments</a></li>
+                            <li><a href="statefulsets.html" class="nav-link">StatefulSets</a></li>
+                            <li><a href="daemonsets.html" class="nav-link">DaemonSets</a></li>
+                            <li><a href="jobs.html" class="nav-link">Jobs</a></li>
+                            <li><a href="cronjobs.html" class="nav-link">CronJobs</a></li>
+                            <li><a href="pods.html" class="nav-link">Pods</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <div class="nav-link" onclick="toggleSubmenu(this)"><span class="nav-icon">🌐</span><span>服务与网络</span><span class="nav-arrow">▶</span></div>
+                        <ul class="nav-submenu">
+                            <li><a href="services.html" class="nav-link">Services</a></li>
+                            <li><a href="ingresses.html" class="nav-link">Ingresses</a></li>
+                            <li><a href="networkpolicies.html" class="nav-link">网络策略</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">存储</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <div class="nav-link" onclick="toggleSubmenu(this)"><span class="nav-icon">💾</span><span>存储管理</span><span class="nav-arrow">▶</span></div>
+                        <ul class="nav-submenu">
+                            <li><a href="storage.html" class="nav-link">存储卷 (PVC)</a></li>
+                            <li><a href="storageclasses.html" class="nav-link">存储类</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">配置</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <div class="nav-link" onclick="toggleSubmenu(this)"><span class="nav-icon">📋</span><span>配置管理</span><span class="nav-arrow">▶</span></div>
+                        <ul class="nav-submenu">
+                            <li><a href="configmaps.html" class="nav-link">ConfigMaps</a></li>
+                            <li><a href="secrets.html" class="nav-link">Secrets</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">监控告警</div>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="monitoring.html" class="nav-link"><span class="nav-icon">📊</span><span>监控中心</span></a></li>
+                    <li class="nav-item"><a href="alerts.html" class="nav-link"><span class="nav-icon">🔔</span><span>告警管理</span></a></li>
+                    <li class="nav-item"><a href="events.html" class="nav-link"><span class="nav-icon">📜</span><span>事件日志</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="header">
+                <nav class="breadcrumb">
+                    <a href="index.html">工作台</a>
+                    <span>/</span>
+                    <span>节点管理</span>
+                </nav>
+                <div class="header-actions">
+                    <div class="search-box"><span>🔍</span><input type="text" placeholder="搜索资源..."></div>
+                    <div class="header-icon" title="通知">🔔</div>
+                    <div class="header-icon" title="设置">⚙️</div>
+                    <div class="user-avatar" title="admin">A</div>
+                </div>
+            </header>
+
+            <div class="content">
+                <div class="page-header">
+                    <h1 class="page-title">节点管理</h1>
+                </div>
+
+                <!-- Stats Overview -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">总节点数</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value success">4</div>
+                        <div class="stat-label">就绪节点</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value warning">1</div>
+                        <div class="stat-label">调度禁用</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">156</div>
+                        <div class="stat-label">运行 Pods</div>
+                    </div>
+                </div>
+
+                <!-- Node Cards -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">集群节点</h3>
+                    </div>
+                    <div class="node-grid">
+                        <!-- Master Node -->
+                        <div class="node-card">
+                            <div class="node-header">
+                                <div class="node-info">
+                                    <div class="node-icon">🖥️</div>
+                                    <div>
+                                        <div class="node-name">master-01</div>
+                                        <div class="node-ip">192.168.1.10</div>
+                                    </div>
+                                </div>
+                                <span class="node-role master">Master</span>
+                            </div>
+                            <div class="node-status">
+                                <span class="status-badge ready"><span class="status-dot"></span>Ready</span>
+                            </div>
+                            <div class="node-labels">
+                                <span class="label-tag">kubernetes.io/os=linux</span>
+                                <span class="label-tag">node-role.kubernetes.io/master</span>
+                            </div>
+                            <div class="node-metrics">
+                                <div class="metric-item">
+                                    <div class="metric-value">35%</div>
+                                    <div class="metric-label">CPU</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-fill low" style="width: 35%"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">58%</div>
+                                    <div class="metric-label">内存</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-fill medium" style="width: 58%"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">42%</div>
+                                    <div class="metric-label">磁盘</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-fill low" style="width: 42%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="node-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Pods</span>
+                                    <span class="detail-value">28/110</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">内核</span>
+                                    <span class="detail-value">5.4.0-150</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">容器运行时</span>
+                                    <span class="detail-value">containerd://1.6.20</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Kubelet</span>
+                                    <span class="detail-value">v1.28.3</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Worker Node 1 -->
+                        <div class="node-card">
+                            <div class="node-header">
+                                <div class="node-info">
+                                    <div class="node-icon">🖥️</div>
+                                    <div>
+                                        <div class="node-name">worker-01</div>
+                                        <div class="node-ip">192.168.1.11</div>
+                                    </div>
+                                </div>
+                                <span class="node-role worker">Worker</span>
+                            </div>
+                            <div class="node-status">
+                                <span class="status-badge ready"><span class="status-dot"></span>Ready</span>
+                            </div>
+                            <div class="node-labels">
+                                <span class="label-tag">kubernetes.io/os=linux</span>
+                                <span class="label-tag">workload=production</span>
+                            </div>
+                            <div class="node-metrics">
+                                <div class="metric-item">
+                                    <div class="metric-value">52%</div>
+                                    <div class="metric-label">CPU</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-fill medium" style="width: 52%"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">71%</div>
+                                    <div class="metric-label">内存</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-fill medium" style="width: 71%"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">55%</div>
+                                    <div class="metric-label">磁盘</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-fill medium" style="width: 55%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="node-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Pods</span>
+                                    <span class="detail-value">45/110</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">内核</span>
+                                    <span class="detail-value">5.4.0-150</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">容器运行时</span>
+                                    <span class="detail-value">containerd://1.6.20</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Kubelet</span>
+                                    <span class="detail-value">v1.28.3</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Worker Node 2 -->
+                        <div class="node-card">
+                            <div class="node-header">
+                                <div class="node-info">
+                                    <div class="node-icon">🖥️</div>
+                                    <div>
+                                        <div class="node-name">worker-02</div>
+                                        <div class="node-ip">192.168.1.12</div>
+                                    </div>
+                                </div>
+                                <span class="node-role worker">Worker</span>
+                            </div>
+                            <div class="node-status">
+                                <span class="status-badge ready"><span class="status-dot"></span>Ready</span>
+                            </div>
+                            <div class="node-labels">
+                                <span class="label-tag">kubernetes.io/os=linux</span>
+                                <span class="label-tag">workload=production</span>
+                            </div>
+                            <div class="node-metrics">
+                                <div class="metric-item">
+                                    <div class="metric-value">48%</div>
+                                    <div class="metric-label">CPU</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-fill low" style="width: 48%"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">65%</div>
+                                    <div class="metric-label">内存</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-fill medium" style="width: 65%"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">38%</div>
+                                    <div class="metric-label">磁盘</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-fill low" style="width: 38%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="node-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Pods</span>
+                                    <span class="detail-value">38/110</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">内核</span>
+                                    <span class="detail-value">5.4.0-150</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">容器运行时</span>
+                                    <span class="detail-value">containerd://1.6.20</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Kubelet</span>
+                                    <span class="detail-value">v1.28.3</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Worker Node 3 -->
+                        <div class="node-card">
+                            <div class="node-header">
+                                <div class="node-info">
+                                    <div class="node-icon">🖥️</div>
+                                    <div>
+                                        <div class="node-name">worker-03</div>
+                                        <div class="node-ip">192.168.1.13</div>
+                                    </div>
+                                </div>
+                                <span class="node-role worker">Worker</span>
+                            </div>
+                            <div class="node-status">
+                                <span class="status-badge ready"><span class="status-dot"></span>Ready</span>
+                            </div>
+                            <div class="node-labels">
+                                <span class="label-tag">kubernetes.io/os=linux</span>
+                                <span class="label-tag">workload=database</span>
+                            </div>
+                            <div class="node-metrics">
+                                <div class="metric-item">
+                                    <div class="metric-value">67%</div>
+                                    <div class="metric-label">CPU</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-fill medium" style="width: 67%"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">82%</div>
+                                    <div class="metric-label">内存</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-fill high" style="width: 82%"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">85%</div>
+                                    <div class="metric-label">磁盘</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-fill high" style="width: 85%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="node-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Pods</span>
+                                    <span class="detail-value">32/110</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">内核</span>
+                                    <span class="detail-value">5.4.0-150</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">容器运行时</span>
+                                    <span class="detail-value">containerd://1.6.20</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Kubelet</span>
+                                    <span class="detail-value">v1.28.3</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Worker Node 4 (Maintenance) -->
+                        <div class="node-card">
+                            <div class="node-header">
+                                <div class="node-info">
+                                    <div class="node-icon">🖥️</div>
+                                    <div>
+                                        <div class="node-name">worker-04</div>
+                                        <div class="node-ip">192.168.1.14</div>
+                                    </div>
+                                </div>
+                                <span class="node-role worker">Worker</span>
+                            </div>
+                            <div class="node-status">
+                                <span class="status-badge notready"><span class="status-dot"></span>SchedulingDisabled</span>
+                            </div>
+                            <div class="node-labels">
+                                <span class="label-tag">kubernetes.io/os=linux</span>
+                                <span class="label-tag">maintenance=true</span>
+                            </div>
+                            <div class="node-metrics">
+                                <div class="metric-item">
+                                    <div class="metric-value">12%</div>
+                                    <div class="metric-label">CPU</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-fill low" style="width: 12%"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">25%</div>
+                                    <div class="metric-label">内存</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-fill low" style="width: 25%"></div>
+                                    </div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">20%</div>
+                                    <div class="metric-label">磁盘</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-fill low" style="width: 20%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="node-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Pods</span>
+                                    <span class="detail-value">13/110</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">内核</span>
+                                    <span class="detail-value">5.4.0-150</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">容器运行时</span>
+                                    <span class="detail-value">containerd://1.6.20</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Kubelet</span>
+                                    <span class="detail-value">v1.28.3</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleSubmenu(element) {
+            const navItem = element.parentElement;
+            navItem.classList.toggle('expanded');
+        }
+    </script>
+</body>
+</html>

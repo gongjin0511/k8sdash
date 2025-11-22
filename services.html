@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K8s Dashboard - 服务与网络</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --sidebar-bg: #242e42;
+            --sidebar-hover: #36435c;
+            --sidebar-active: #55bc8a;
+            --header-bg: #ffffff;
+            --content-bg: #f9fbfd;
+            --primary-color: #329dce;
+            --success-color: #55bc8a;
+            --warning-color: #f5a623;
+            --danger-color: #ca2621;
+            --text-primary: #242e42;
+            --text-secondary: #79879c;
+            --border-color: #d8dee5;
+            --card-bg: #ffffff;
+            --card-shadow: 0 1px 4px rgba(36, 46, 66, 0.12);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            font-size: 14px;
+            line-height: 1.67;
+            color: var(--text-primary);
+            background-color: var(--content-bg);
+        }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        .sidebar-logo {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-logo h1 {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-icon {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, #329dce, #55bc8a);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .nav-section { padding: 12px 0; }
+        .nav-section-title {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 12px;
+            padding: 8px 20px;
+            text-transform: uppercase;
+        }
+        .nav-menu { list-style: none; }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
+        .nav-link.active {
+            background: var(--sidebar-hover);
+            color: #fff;
+            border-left: 3px solid var(--sidebar-active);
+            padding-left: 17px;
+        }
+        .nav-icon { width: 20px; height: 20px; margin-right: 12px; display: flex; align-items: center; justify-content: center; }
+        .nav-arrow { margin-left: auto; transition: transform 0.2s; font-size: 12px; }
+        .nav-item.expanded .nav-arrow { transform: rotate(90deg); }
+        .nav-submenu { list-style: none; display: none; background: rgba(0, 0, 0, 0.15); }
+        .nav-item.expanded .nav-submenu { display: block; }
+        .nav-submenu .nav-link { padding-left: 52px; font-size: 13px; }
+        .nav-submenu .nav-link.active { padding-left: 49px; }
+        .main { flex: 1; margin-left: 260px; display: flex; flex-direction: column; min-height: 100vh; }
+        .header {
+            height: 60px;
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .breadcrumb { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); }
+        .breadcrumb a { color: var(--text-secondary); text-decoration: none; }
+        .breadcrumb a:hover { color: var(--primary-color); }
+        .breadcrumb span:last-child { color: var(--text-primary); font-weight: 500; }
+        .header-actions { display: flex; align-items: center; gap: 16px; }
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: var(--content-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 6px 16px;
+            width: 280px;
+        }
+        .search-box input { border: none; background: transparent; outline: none; width: 100%; font-size: 13px; margin-left: 8px; }
+        .header-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; color: var(--text-secondary); }
+        .header-icon:hover { background: var(--content-bg); }
+        .user-avatar {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #329dce, #55bc8a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .content { padding: 24px; flex: 1; }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--card-bg);
+            padding: 0 20px;
+        }
+        .tab {
+            padding: 16px 20px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+        }
+        .tab:hover { color: var(--text-primary); }
+        .tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+        .tab-badge { background: var(--content-bg); padding: 2px 8px; border-radius: 10px; font-size: 12px; margin-left: 8px; }
+        .card { background: var(--card-bg); border-radius: 4px; box-shadow: var(--card-shadow); }
+        .table-toolbar {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 12px; }
+        .filter-select, .search-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 13px;
+            background: #fff;
+        }
+        .search-input { width: 240px; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--primary-color); color: #fff; }
+        .btn-primary:hover { background: #2889b5; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td {
+            padding: 14px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .data-table th { font-weight: 500; color: var(--text-secondary); font-size: 13px; background: var(--content-bg); }
+        .data-table tr:hover { background: var(--content-bg); }
+        .data-table tbody tr { cursor: pointer; }
+        .resource-cell { display: flex; align-items: center; gap: 12px; }
+        .resource-icon-small {
+            width: 32px; height: 32px;
+            border-radius: 4px;
+            background: var(--content-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .resource-name-link { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+        .resource-name-link:hover { text-decoration: underline; }
+        .resource-namespace { font-size: 12px; color: var(--text-secondary); }
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .type-badge.clusterip { background: rgba(50, 157, 206, 0.1); color: var(--primary-color); }
+        .type-badge.nodeport { background: rgba(85, 188, 138, 0.1); color: var(--success-color); }
+        .type-badge.loadbalancer { background: rgba(245, 166, 35, 0.1); color: var(--warning-color); }
+        .type-badge.headless { background: rgba(121, 135, 156, 0.1); color: var(--text-secondary); }
+        .port-info { font-family: 'SF Mono', Monaco, monospace; font-size: 12px; color: var(--text-secondary); }
+        .port-info span { display: block; }
+        .action-btns { display: flex; gap: 4px; }
+        .action-btn {
+            width: 28px; height: 28px;
+            border: none;
+            background: transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        .action-btn:hover { background: var(--content-bg); color: var(--primary-color); }
+        .pagination {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid var(--border-color);
+        }
+        .pagination-info { color: var(--text-secondary); font-size: 13px; }
+        .pagination-controls { display: flex; align-items: center; gap: 8px; }
+        .pagination-btn {
+            width: 32px; height: 32px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+        }
+        .pagination-btn:hover:not(:disabled) { border-color: var(--primary-color); color: var(--primary-color); }
+        .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .pagination-btn.active { background: var(--primary-color); border-color: var(--primary-color); color: #fff; }
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; }
+            .sidebar-logo h1 span, .nav-section-title, .nav-link span, .nav-arrow { display: none; }
+            .nav-link { justify-content: center; padding: 12px; }
+            .nav-icon { margin-right: 0; }
+            .main { margin-left: 60px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h1><span class="logo-icon">K8</span><span>K8s Dashboard</span></h1>
+            </div>
+            <nav class="nav-section">
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="index.html" class="nav-link"><span class="nav-icon">🏠</span><span>工作台</span></a></li>
+                </ul>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">集群管理</div>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="cluster.html" class="nav-link"><span class="nav-icon">⚙️</span><span>集群概览</span></a></li>
+                    <li class="nav-item"><a href="nodes.html" class="nav-link"><span class="nav-icon">🖥️</span><span>节点管理</span></a></li>
+                </ul>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">应用负载</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <div class="nav-link" onclick="toggleSubmenu(this)"><span class="nav-icon">📦</span><span>工作负载</span><span class="nav-arrow">▶</span></div>
+                        <ul class="nav-submenu">
+                            <li><a href="workloads.html" class="nav-link">Deployments</a></li>
+                            <li><a href="statefulsets.html" class="nav-link">StatefulSets</a></li>
+                            <li><a href="daemonsets.html" class="nav-link">DaemonSets</a></li>
+                            <li><a href="jobs.html" class="nav-link">Jobs</a></li>
+                            <li><a href="cronjobs.html" class="nav-link">CronJobs</a></li>
+                            <li><a href="pods.html" class="nav-link">Pods</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item expanded">
+                        <div class="nav-link" onclick="toggleSubmenu(this)"><span class="nav-icon">🌐</span><span>服务与网络</span><span class="nav-arrow">▶</span></div>
+                        <ul class="nav-submenu">
+                            <li><a href="services.html" class="nav-link active">Services</a></li>
+                            <li><a href="ingresses.html" class="nav-link">Ingresses</a></li>
+                            <li><a href="networkpolicies.html" class="nav-link">网络策略</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">存储</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <div class="nav-link" onclick="toggleSubmenu(this)"><span class="nav-icon">💾</span><span>存储管理</span><span class="nav-arrow">▶</span></div>
+                        <ul class="nav-submenu">
+                            <li><a href="storage.html" class="nav-link">存储卷 (PVC)</a></li>
+                            <li><a href="storageclasses.html" class="nav-link">存储类</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">配置</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <div class="nav-link" onclick="toggleSubmenu(this)"><span class="nav-icon">📋</span><span>配置管理</span><span class="nav-arrow">▶</span></div>
+                        <ul class="nav-submenu">
+                            <li><a href="configmaps.html" class="nav-link">ConfigMaps</a></li>
+                            <li><a href="secrets.html" class="nav-link">Secrets</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">监控告警</div>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="monitoring.html" class="nav-link"><span class="nav-icon">📊</span><span>监控中心</span></a></li>
+                    <li class="nav-item"><a href="alerts.html" class="nav-link"><span class="nav-icon">🔔</span><span>告警管理</span></a></li>
+                    <li class="nav-item"><a href="events.html" class="nav-link"><span class="nav-icon">📜</span><span>事件日志</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="header">
+                <nav class="breadcrumb">
+                    <a href="index.html">工作台</a>
+                    <span>/</span>
+                    <span>服务与网络</span>
+                </nav>
+                <div class="header-actions">
+                    <div class="search-box"><span>🔍</span><input type="text" placeholder="搜索资源..."></div>
+                    <div class="header-icon" title="通知">🔔</div>
+                    <div class="header-icon" title="设置">⚙️</div>
+                    <div class="user-avatar" title="admin">A</div>
+                </div>
+            </header>
+
+            <div class="tabs">
+                <div class="tab active">Services<span class="tab-badge">18</span></div>
+                <div class="tab">Ingresses<span class="tab-badge">6</span></div>
+                <div class="tab">网络策略<span class="tab-badge">4</span></div>
+            </div>
+
+            <div class="content">
+                <div class="card">
+                    <div class="table-toolbar">
+                        <div class="toolbar-left">
+                            <select class="filter-select">
+                                <option value="">全部命名空间</option>
+                                <option value="default">default</option>
+                                <option value="production">production</option>
+                                <option value="kube-system">kube-system</option>
+                            </select>
+                            <select class="filter-select">
+                                <option value="">全部类型</option>
+                                <option value="ClusterIP">ClusterIP</option>
+                                <option value="NodePort">NodePort</option>
+                                <option value="LoadBalancer">LoadBalancer</option>
+                            </select>
+                        </div>
+                        <div class="toolbar-right">
+                            <input type="text" class="search-input" placeholder="按名称搜索...">
+                            <button class="btn btn-primary">+ 创建 Service</button>
+                        </div>
+                    </div>
+
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>名称</th>
+                                <th>类型</th>
+                                <th>Cluster IP</th>
+                                <th>端口</th>
+                                <th>External IP</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="resource-cell">
+                                        <div class="resource-icon-small">🌐</div>
+                                        <div>
+                                            <a href="#" class="resource-name-link">nginx-service</a>
+                                            <div class="resource-namespace">default</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="type-badge clusterip">ClusterIP</span></td>
+                                <td><code>10.96.0.100</code></td>
+                                <td class="port-info"><span>80:TCP → 80</span></td>
+                                <td>-</td>
+                                <td>2024-01-15 10:30</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn" title="编辑">✏️</button>
+                                        <button class="action-btn" title="YAML">📄</button>
+                                        <button class="action-btn" title="删除">🗑️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="resource-cell">
+                                        <div class="resource-icon-small">🌐</div>
+                                        <div>
+                                            <a href="#" class="resource-name-link">api-gateway-svc</a>
+                                            <div class="resource-namespace">production</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="type-badge loadbalancer">LoadBalancer</span></td>
+                                <td><code>10.96.0.150</code></td>
+                                <td class="port-info"><span>443:TCP → 8443</span><span>80:TCP → 8080</span></td>
+                                <td>52.168.1.100</td>
+                                <td>2024-01-14 15:22</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn" title="编辑">✏️</button>
+                                        <button class="action-btn" title="YAML">📄</button>
+                                        <button class="action-btn" title="删除">🗑️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="resource-cell">
+                                        <div class="resource-icon-small">🌐</div>
+                                        <div>
+                                            <a href="#" class="resource-name-link">mysql-service</a>
+                                            <div class="resource-namespace">database</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="type-badge headless">Headless</span></td>
+                                <td><code>None</code></td>
+                                <td class="port-info"><span>3306:TCP → 3306</span></td>
+                                <td>-</td>
+                                <td>2024-01-12 09:45</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn" title="编辑">✏️</button>
+                                        <button class="action-btn" title="YAML">📄</button>
+                                        <button class="action-btn" title="删除">🗑️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="resource-cell">
+                                        <div class="resource-icon-small">🌐</div>
+                                        <div>
+                                            <a href="#" class="resource-name-link">redis-service</a>
+                                            <div class="resource-namespace">production</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="type-badge nodeport">NodePort</span></td>
+                                <td><code>10.96.0.180</code></td>
+                                <td class="port-info"><span>6379:TCP → 6379</span><span>NodePort: 30379</span></td>
+                                <td>-</td>
+                                <td>2024-01-10 14:18</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn" title="编辑">✏️</button>
+                                        <button class="action-btn" title="YAML">📄</button>
+                                        <button class="action-btn" title="删除">🗑️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="resource-cell">
+                                        <div class="resource-icon-small">🌐</div>
+                                        <div>
+                                            <a href="#" class="resource-name-link">kubernetes</a>
+                                            <div class="resource-namespace">default</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="type-badge clusterip">ClusterIP</span></td>
+                                <td><code>10.96.0.1</code></td>
+                                <td class="port-info"><span>443:TCP → 6443</span></td>
+                                <td>-</td>
+                                <td>2024-01-01 00:00</td>
+                                <td>
+                                    <div class="action-btns">
+                                        <button class="action-btn" title="编辑">✏️</button>
+                                        <button class="action-btn" title="YAML">📄</button>
+                                        <button class="action-btn" title="删除">🗑️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="pagination">
+                        <div class="pagination-info">共 18 条记录，每页显示 10 条</div>
+                        <div class="pagination-controls">
+                            <button class="pagination-btn" disabled>◀</button>
+                            <button class="pagination-btn active">1</button>
+                            <button class="pagination-btn">2</button>
+                            <button class="pagination-btn">▶</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleSubmenu(element) {
+            const navItem = element.parentElement;
+            navItem.classList.toggle('expanded');
+        }
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
