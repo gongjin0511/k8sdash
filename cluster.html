@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K8s Dashboard - 集群概览</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --sidebar-bg: #242e42;
+            --sidebar-hover: #36435c;
+            --sidebar-active: #55bc8a;
+            --header-bg: #ffffff;
+            --content-bg: #f9fbfd;
+            --primary-color: #329dce;
+            --success-color: #55bc8a;
+            --warning-color: #f5a623;
+            --danger-color: #ca2621;
+            --text-primary: #242e42;
+            --text-secondary: #79879c;
+            --border-color: #d8dee5;
+            --card-bg: #ffffff;
+            --card-shadow: 0 1px 4px rgba(36, 46, 66, 0.12);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            font-size: 14px;
+            line-height: 1.67;
+            color: var(--text-primary);
+            background-color: var(--content-bg);
+        }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 260px;
+            background: var(--sidebar-bg);
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        .sidebar-logo {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-logo h1 {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo-icon {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, #329dce, #55bc8a);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .nav-section { padding: 12px 0; }
+        .nav-section-title { color: rgba(255, 255, 255, 0.4); font-size: 12px; padding: 8px 20px; text-transform: uppercase; }
+        .nav-menu { list-style: none; }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
+        .nav-link.active { background: var(--sidebar-hover); color: #fff; border-left: 3px solid var(--sidebar-active); padding-left: 17px; }
+        .nav-icon { width: 20px; height: 20px; margin-right: 12px; display: flex; align-items: center; justify-content: center; }
+        .nav-arrow { margin-left: auto; transition: transform 0.2s; font-size: 12px; }
+        .nav-item.expanded .nav-arrow { transform: rotate(90deg); }
+        .nav-submenu { list-style: none; display: none; background: rgba(0, 0, 0, 0.15); }
+        .nav-item.expanded .nav-submenu { display: block; }
+        .nav-submenu .nav-link { padding-left: 52px; font-size: 13px; }
+        .nav-submenu .nav-link.active { padding-left: 49px; }
+        .main { flex: 1; margin-left: 260px; display: flex; flex-direction: column; min-height: 100vh; }
+        .header {
+            height: 60px;
+            background: var(--header-bg);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .breadcrumb { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); }
+        .breadcrumb a { color: var(--text-secondary); text-decoration: none; }
+        .breadcrumb a:hover { color: var(--primary-color); }
+        .breadcrumb span:last-child { color: var(--text-primary); font-weight: 500; }
+        .header-actions { display: flex; align-items: center; gap: 16px; }
+        .search-box { display: flex; align-items: center; background: var(--content-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 6px 16px; width: 280px; }
+        .search-box input { border: none; background: transparent; outline: none; width: 100%; font-size: 13px; margin-left: 8px; }
+        .header-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; color: var(--text-secondary); }
+        .header-icon:hover { background: var(--content-bg); }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #329dce, #55bc8a); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 500; cursor: pointer; }
+        .content { padding: 24px; flex: 1; }
+        .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .page-title { font-size: 20px; font-weight: 600; }
+        .cluster-info-card {
+            background: linear-gradient(135deg, #242e42 0%, #36435c 100%);
+            border-radius: 8px;
+            padding: 24px;
+            color: #fff;
+            margin-bottom: 24px;
+        }
+        .cluster-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .cluster-name { display: flex; align-items: center; gap: 12px; }
+        .cluster-icon { width: 48px; height: 48px; background: rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .cluster-title { font-size: 20px; font-weight: 600; }
+        .cluster-version { font-size: 13px; opacity: 0.8; margin-top: 4px; }
+        .cluster-status { display: flex; align-items: center; gap: 8px; padding: 6px 16px; background: rgba(85, 188, 138, 0.2); border-radius: 20px; }
+        .status-dot { width: 8px; height: 8px; background: var(--success-color); border-radius: 50%; }
+        .cluster-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
+        .cluster-stat { text-align: center; padding: 16px; background: rgba(255,255,255,0.05); border-radius: 8px; }
+        .cluster-stat-value { font-size: 28px; font-weight: 600; margin-bottom: 4px; }
+        .cluster-stat-label { font-size: 12px; opacity: 0.7; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--card-bg); border-radius: 4px; padding: 20px; box-shadow: var(--card-shadow); }
+        .stat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .stat-title { font-size: 13px; color: var(--text-secondary); }
+        .stat-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .stat-icon.blue { background: rgba(50, 157, 206, 0.1); color: var(--primary-color); }
+        .stat-icon.green { background: rgba(85, 188, 138, 0.1); color: var(--success-color); }
+        .stat-icon.orange { background: rgba(245, 166, 35, 0.1); color: var(--warning-color); }
+        .stat-icon.red { background: rgba(202, 38, 33, 0.1); color: var(--danger-color); }
+        .stat-value { font-size: 28px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+        .stat-detail { font-size: 12px; color: var(--text-secondary); }
+        .two-column { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .card { background: var(--card-bg); border-radius: 4px; box-shadow: var(--card-shadow); }
+        .card-header { padding: 16px 20px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+        .card-title { font-size: 14px; font-weight: 600; }
+        .card-body { padding: 20px; }
+        .info-list { list-style: none; }
+        .info-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .info-item:last-child { border-bottom: none; }
+        .info-label { color: var(--text-secondary); }
+        .info-value { color: var(--text-primary); font-weight: 500; }
+        .component-list { list-style: none; }
+        .component-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .component-item:last-child { border-bottom: none; }
+        .component-info { display: flex; align-items: center; gap: 12px; }
+        .component-icon { width: 32px; height: 32px; background: var(--content-bg); border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+        .component-name { font-weight: 500; }
+        .component-desc { font-size: 12px; color: var(--text-secondary); }
+        .component-status { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+        .component-status.healthy { color: var(--success-color); }
+        .component-status.unhealthy { color: var(--danger-color); }
+        .resource-quota { margin-bottom: 16px; }
+        .resource-quota:last-child { margin-bottom: 0; }
+        .quota-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .quota-label { font-weight: 500; }
+        .quota-value { color: var(--text-secondary); font-size: 13px; }
+        .quota-bar { height: 8px; background: var(--content-bg); border-radius: 4px; overflow: hidden; }
+        .quota-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+        .quota-fill.blue { background: var(--primary-color); }
+        .quota-fill.green { background: var(--success-color); }
+        .quota-fill.orange { background: var(--warning-color); }
+        @media (max-width: 1200px) { .two-column { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; }
+            .sidebar-logo h1 span, .nav-section-title, .nav-link span, .nav-arrow { display: none; }
+            .nav-link { justify-content: center; padding: 12px; }
+            .nav-icon { margin-right: 0; }
+            .main { margin-left: 60px; }
+            .cluster-stats { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo"><h1><span class="logo-icon">K8</span><span>K8s Dashboard</span></h1></div>
+            <nav class="nav-section">
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="index.html" class="nav-link"><span class="nav-icon">🏠</span><span>工作台</span></a></li>
+                </ul>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">集群管理</div>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="cluster.html" class="nav-link active"><span class="nav-icon">⚙️</span><span>集群概览</span></a></li>
+                    <li class="nav-item"><a href="nodes.html" class="nav-link"><span class="nav-icon">🖥️</span><span>节点管理</span></a></li>
+                </ul>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">应用负载</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <div class="nav-link" onclick="toggleSubmenu(this)"><span class="nav-icon">📦</span><span>工作负载</span><span class="nav-arrow">▶</span></div>
+                        <ul class="nav-submenu">
+                            <li><a href="workloads.html" class="nav-link">Deployments</a></li>
+                            <li><a href="statefulsets.html" class="nav-link">StatefulSets</a></li>
+                            <li><a href="daemonsets.html" class="nav-link">DaemonSets</a></li>
+                            <li><a href="jobs.html" class="nav-link">Jobs</a></li>
+                            <li><a href="cronjobs.html" class="nav-link">CronJobs</a></li>
+                            <li><a href="pods.html" class="nav-link">Pods</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <div class="nav-link" onclick="toggleSubmenu(this)"><span class="nav-icon">🌐</span><span>服务与网络</span><span class="nav-arrow">▶</span></div>
+                        <ul class="nav-submenu">
+                            <li><a href="services.html" class="nav-link">Services</a></li>
+                            <li><a href="ingresses.html" class="nav-link">Ingresses</a></li>
+                            <li><a href="networkpolicies.html" class="nav-link">网络策略</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">存储</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <div class="nav-link" onclick="toggleSubmenu(this)"><span class="nav-icon">💾</span><span>存储管理</span><span class="nav-arrow">▶</span></div>
+                        <ul class="nav-submenu">
+                            <li><a href="storage.html" class="nav-link">存储卷 (PVC)</a></li>
+                            <li><a href="storageclasses.html" class="nav-link">存储类</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">配置</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <div class="nav-link" onclick="toggleSubmenu(this)"><span class="nav-icon">📋</span><span>配置管理</span><span class="nav-arrow">▶</span></div>
+                        <ul class="nav-submenu">
+                            <li><a href="configmaps.html" class="nav-link">ConfigMaps</a></li>
+                            <li><a href="secrets.html" class="nav-link">Secrets</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-section-title">监控告警</div>
+                <ul class="nav-menu">
+                    <li class="nav-item"><a href="monitoring.html" class="nav-link"><span class="nav-icon">📊</span><span>监控中心</span></a></li>
+                    <li class="nav-item"><a href="alerts.html" class="nav-link"><span class="nav-icon">🔔</span><span>告警管理</span></a></li>
+                    <li class="nav-item"><a href="events.html" class="nav-link"><span class="nav-icon">📜</span><span>事件日志</span></a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <header class="header">
+                <nav class="breadcrumb">
+                    <a href="index.html">工作台</a>
+                    <span>/</span>
+                    <span>集群概览</span>
+                </nav>
+                <div class="header-actions">
+                    <div class="search-box"><span>🔍</span><input type="text" placeholder="搜索资源..."></div>
+                    <div class="header-icon" title="通知">🔔</div>
+                    <div class="header-icon" title="设置">⚙️</div>
+                    <div class="user-avatar" title="admin">A</div>
+                </div>
+            </header>
+
+            <div class="content">
+                <!-- Cluster Info Card -->
+                <div class="cluster-info-card">
+                    <div class="cluster-header">
+                        <div class="cluster-name">
+                            <div class="cluster-icon">☸️</div>
+                            <div>
+                                <div class="cluster-title">production-cluster</div>
+                                <div class="cluster-version">Kubernetes v1.28.3</div>
+                            </div>
+                        </div>
+                        <div class="cluster-status">
+                            <span class="status-dot"></span>
+                            <span>运行中</span>
+                        </div>
+                    </div>
+                    <div class="cluster-stats">
+                        <div class="cluster-stat">
+                            <div class="cluster-stat-value">5</div>
+                            <div class="cluster-stat-label">节点总数</div>
+                        </div>
+                        <div class="cluster-stat">
+                            <div class="cluster-stat-value">24</div>
+                            <div class="cluster-stat-label">命名空间</div>
+                        </div>
+                        <div class="cluster-stat">
+                            <div class="cluster-stat-value">156</div>
+                            <div class="cluster-stat-label">运行中 Pods</div>
+                        </div>
+                        <div class="cluster-stat">
+                            <div class="cluster-stat-value">42</div>
+                            <div class="cluster-stat-label">Deployments</div>
+                        </div>
+                        <div class="cluster-stat">
+                            <div class="cluster-stat-value">68</div>
+                            <div class="cluster-stat-label">Services</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-title">CPU 总量</span>
+                            <div class="stat-icon blue">💻</div>
+                        </div>
+                        <div class="stat-value">40 Cores</div>
+                        <div class="stat-detail">已使用: 18 Cores (45%)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-title">内存总量</span>
+                            <div class="stat-icon green">🧠</div>
+                        </div>
+                        <div class="stat-value">80 GB</div>
+                        <div class="stat-detail">已使用: 49.6 GB (62%)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-title">存储总量</span>
+                            <div class="stat-icon orange">💾</div>
+                        </div>
+                        <div class="stat-value">1000 GB</div>
+                        <div class="stat-detail">已使用: 380 GB (38%)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-title">Pod 配额</span>
+                            <div class="stat-icon red">📦</div>
+                        </div>
+                        <div class="stat-value">500</div>
+                        <div class="stat-detail">已使用: 156 (31%)</div>
+                    </div>
+                </div>
+
+                <!-- Two Column -->
+                <div class="two-column">
+                    <!-- Cluster Info -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">集群信息</h3>
+                        </div>
+                        <div class="card-body">
+                            <ul class="info-list">
+                                <li class="info-item">
+                                    <span class="info-label">集群名称</span>
+                                    <span class="info-value">production-cluster</span>
+                                </li>
+                                <li class="info-item">
+                                    <span class="info-label">Kubernetes 版本</span>
+                                    <span class="info-value">v1.28.3</span>
+                                </li>
+                                <li class="info-item">
+                                    <span class="info-label">API Server</span>
+                                    <span class="info-value">https://192.168.1.10:6443</span>
+                                </li>
+                                <li class="info-item">
+                                    <span class="info-label">容器运行时</span>
+                                    <span class="info-value">containerd://1.6.20</span>
+                                </li>
+                                <li class="info-item">
+                                    <span class="info-label">网络插件</span>
+                                    <span class="info-value">Calico v3.26.1</span>
+                                </li>
+                                <li class="info-item">
+                                    <span class="info-label">DNS 服务</span>
+                                    <span class="info-value">CoreDNS v1.10.1</span>
+                                </li>
+                                <li class="info-item">
+                                    <span class="info-label">创建时间</span>
+                                    <span class="info-value">2024-01-01 00:00:00</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Component Status -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">组件状态</h3>
+                        </div>
+                        <div class="card-body">
+                            <ul class="component-list">
+                                <li class="component-item">
+                                    <div class="component-info">
+                                        <div class="component-icon">⚙️</div>
+                                        <div>
+                                            <div class="component-name">kube-apiserver</div>
+                                            <div class="component-desc">Kubernetes API 服务</div>
+                                        </div>
+                                    </div>
+                                    <div class="component-status healthy">✓ 健康</div>
+                                </li>
+                                <li class="component-item">
+                                    <div class="component-info">
+                                        <div class="component-icon">📋</div>
+                                        <div>
+                                            <div class="component-name">kube-controller-manager</div>
+                                            <div class="component-desc">控制器管理器</div>
+                                        </div>
+                                    </div>
+                                    <div class="component-status healthy">✓ 健康</div>
+                                </li>
+                                <li class="component-item">
+                                    <div class="component-info">
+                                        <div class="component-icon">📅</div>
+                                        <div>
+                                            <div class="component-name">kube-scheduler</div>
+                                            <div class="component-desc">调度器</div>
+                                        </div>
+                                    </div>
+                                    <div class="component-status healthy">✓ 健康</div>
+                                </li>
+                                <li class="component-item">
+                                    <div class="component-info">
+                                        <div class="component-icon">💾</div>
+                                        <div>
+                                            <div class="component-name">etcd</div>
+                                            <div class="component-desc">分布式键值存储</div>
+                                        </div>
+                                    </div>
+                                    <div class="component-status healthy">✓ 健康</div>
+                                </li>
+                                <li class="component-item">
+                                    <div class="component-info">
+                                        <div class="component-icon">🌐</div>
+                                        <div>
+                                            <div class="component-name">CoreDNS</div>
+                                            <div class="component-desc">集群 DNS 服务</div>
+                                        </div>
+                                    </div>
+                                    <div class="component-status healthy">✓ 健康</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resource Quotas -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">资源配额使用</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="two-column" style="margin-bottom: 0;">
+                            <div>
+                                <div class="resource-quota">
+                                    <div class="quota-header">
+                                        <span class="quota-label">CPU 使用率</span>
+                                        <span class="quota-value">18 / 40 Cores (45%)</span>
+                                    </div>
+                                    <div class="quota-bar">
+                                        <div class="quota-fill blue" style="width: 45%"></div>
+                                    </div>
+                                </div>
+                                <div class="resource-quota">
+                                    <div class="quota-header">
+                                        <span class="quota-label">内存使用率</span>
+                                        <span class="quota-value">49.6 / 80 GB (62%)</span>
+                                    </div>
+                                    <div class="quota-bar">
+                                        <div class="quota-fill green" style="width: 62%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="resource-quota">
+                                    <div class="quota-header">
+                                        <span class="quota-label">存储使用率</span>
+                                        <span class="quota-value">380 / 1000 GB (38%)</span>
+                                    </div>
+                                    <div class="quota-bar">
+                                        <div class="quota-fill blue" style="width: 38%"></div>
+                                    </div>
+                                </div>
+                                <div class="resource-quota">
+                                    <div class="quota-header">
+                                        <span class="quota-label">Pod 数量</span>
+                                        <span class="quota-value">156 / 500 (31%)</span>
+                                    </div>
+                                    <div class="quota-bar">
+                                        <div class="quota-fill green" style="width: 31%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>
+        function toggleSubmenu(element) {
+            const navItem = element.parentElement;
+            navItem.classList.toggle('expanded');
+        }
+    </script>
+</body>
+</html>

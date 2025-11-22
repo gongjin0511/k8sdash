@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K8s Dashboard - Jobs</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --sidebar-bg: #242e42; --sidebar-hover: #36435c; --sidebar-active: #55bc8a; --header-bg: #ffffff; --content-bg: #f9fbfd; --primary-color: #329dce; --success-color: #55bc8a; --warning-color: #f5a623; --danger-color: #ca2621; --text-primary: #242e42; --text-secondary: #79879c; --border-color: #d8dee5; --card-bg: #ffffff; --card-shadow: 0 1px 4px rgba(36, 46, 66, 0.12); }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif; font-size: 14px; line-height: 1.67; color: var(--text-primary); background-color: var(--content-bg); }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: var(--sidebar-bg); position: fixed; left: 0; top: 0; bottom: 0; overflow-y: auto; z-index: 100; }
+        .sidebar-logo { height: 60px; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-logo h1 { color: #fff; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #329dce, #55bc8a); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: bold; }
+        .nav-section { padding: 12px 0; } .nav-section-title { color: rgba(255,255,255,0.4); font-size: 12px; padding: 8px 20px; text-transform: uppercase; }
+        .nav-menu { list-style: none; }
+        .nav-link { display: flex; align-items: center; padding: 12px 20px; color: rgba(255,255,255,0.8); text-decoration: none; transition: all 0.2s; cursor: pointer; }
+        .nav-link:hover { background: var(--sidebar-hover); color: #fff; }
+        .nav-link.active { background: var(--sidebar-hover); color: #fff; border-left: 3px solid var(--sidebar-active); padding-left: 17px; }
+        .nav-icon { width: 20px; height: 20px; margin-right: 12px; }
+        .nav-arrow { margin-left: auto; font-size: 12px; transition: transform 0.2s; }
+        .nav-item.expanded .nav-arrow { transform: rotate(90deg); }
+        .nav-submenu { list-style: none; display: none; background: rgba(0,0,0,0.15); }
+        .nav-item.expanded .nav-submenu { display: block; }
+        .nav-submenu .nav-link { padding-left: 52px; font-size: 13px; }
+        .nav-submenu .nav-link.active { padding-left: 49px; }
+        .main { flex: 1; margin-left: 260px; display: flex; flex-direction: column; min-height: 100vh; }
+        .header { height: 60px; background: var(--header-bg); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; position: sticky; top: 0; z-index: 50; }
+        .breadcrumb { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); }
+        .breadcrumb a { color: var(--text-secondary); text-decoration: none; } .breadcrumb a:hover { color: var(--primary-color); }
+        .breadcrumb span:last-child { color: var(--text-primary); font-weight: 500; }
+        .header-actions { display: flex; align-items: center; gap: 16px; }
+        .search-box { display: flex; align-items: center; background: var(--content-bg); border: 1px solid var(--border-color); border-radius: 20px; padding: 6px 16px; width: 280px; }
+        .search-box input { border: none; background: transparent; outline: none; width: 100%; font-size: 13px; margin-left: 8px; }
+        .header-icon { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer; color: var(--text-secondary); }
+        .user-avatar { width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #329dce, #55bc8a); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; cursor: pointer; }
+        .content { padding: 24px; flex: 1; }
+        .card { background: var(--card-bg); border-radius: 4px; box-shadow: var(--card-shadow); }
+        .table-toolbar { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-color); }
+        .toolbar-left, .toolbar-right { display: flex; align-items: center; gap: 12px; }
+        .filter-select, .search-input { padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 13px; background: #fff; }
+        .search-input { width: 240px; }
+        .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 4px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; }
+        .btn-primary { background: var(--primary-color); color: #fff; }
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 14px 20px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .data-table th { font-weight: 500; color: var(--text-secondary); font-size: 13px; background: var(--content-bg); }
+        .data-table tr:hover { background: var(--content-bg); }
+        .resource-cell { display: flex; align-items: center; gap: 12px; }
+        .resource-icon-small { width: 32px; height: 32px; border-radius: 4px; background: var(--content-bg); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+        .resource-name-link { color: var(--primary-color); text-decoration: none; font-weight: 500; }
+        .resource-namespace { font-size: 12px; color: var(--text-secondary); }
+        .status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+        .status-badge.complete { background: rgba(85, 188, 138, 0.1); color: var(--success-color); }
+        .status-badge.running { background: rgba(50, 157, 206, 0.1); color: var(--primary-color); }
+        .status-badge.failed { background: rgba(202, 38, 33, 0.1); color: var(--danger-color); }
+        .status-dot-sm { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+        .completions { font-family: monospace; font-size: 13px; }
+        .duration { color: var(--text-secondary); font-size: 13px; }
+        .action-btns { display: flex; gap: 4px; }
+        .action-btn { width: 28px; height: 28px; border: none; background: transparent; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: var(--text-secondary); }
+        .action-btn:hover { background: var(--content-bg); color: var(--primary-color); }
+        .pagination { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .pagination-info { color: var(--text-secondary); font-size: 13px; }
+        .pagination-controls { display: flex; gap: 8px; }
+        .pagination-btn { width: 32px; height: 32px; border: 1px solid var(--border-color); background: #fff; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); }
+        .pagination-btn:disabled { opacity: 0.5; }
+        .pagination-btn.active { background: var(--primary-color); border-color: var(--primary-color); color: #fff; }
+        @media (max-width: 768px) { .sidebar { width: 60px; } .sidebar-logo h1 span, .nav-section-title, .nav-link span, .nav-arrow { display: none; } .nav-link { justify-content: center; padding: 12px; } .nav-icon { margin-right: 0; } .main { margin-left: 60px; } }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo"><h1><span class="logo-icon">K8</span><span>K8s Dashboard</span></h1></div>
+            <nav class="nav-section"><ul class="nav-menu"><li class="nav-item"><a href="index.html" class="nav-link"><span class="nav-icon">🏠</span><span>工作台</span></a></li></ul></nav>
+            <nav class="nav-section"><div class="nav-section-title">集群管理</div><ul class="nav-menu"><li class="nav-item"><a href="cluster.html" class="nav-link"><span class="nav-icon">⚙️</span><span>集群概览</span></a></li><li class="nav-item"><a href="nodes.html" class="nav-link"><span class="nav-icon">🖥️</span><span>节点管理</span></a></li></ul></nav>
+            <nav class="nav-section"><div class="nav-section-title">应用负载</div>
+                <ul class="nav-menu">
+                    <li class="nav-item expanded"><div class="nav-link" onclick="toggleSubmenu(this)"><span class="nav-icon">📦</span><span>工作负载</span><span class="nav-arrow">▶</span></div>
+                        <ul class="nav-submenu"><li><a href="workloads.html" class="nav-link">Deployments</a></li><li><a href="statefulsets.html" class="nav-link">StatefulSets</a></li><li><a href="daemonsets.html" class="nav-link">DaemonSets</a></li><li><a href="jobs.html" class="nav-link active">Jobs</a></li><li><a href="cronjobs.html" class="nav-link">CronJobs</a></li><li><a href="pods.html" class="nav-link">Pods</a></li></ul>
+                    </li>
+                    <li class="nav-item"><div class="nav-link" onclick="toggleSubmenu(this)"><span class="nav-icon">🌐</span><span>服务与网络</span><span class="nav-arrow">▶</span></div><ul class="nav-submenu"><li><a href="services.html" class="nav-link">Services</a></li><li><a href="ingresses.html" class="nav-link">Ingresses</a></li><li><a href="networkpolicies.html" class="nav-link">网络策略</a></li></ul></li>
+                </ul>
+            </nav>
+            <nav class="nav-section"><div class="nav-section-title">存储</div><ul class="nav-menu"><li class="nav-item"><div class="nav-link" onclick="toggleSubmenu(this)"><span class="nav-icon">💾</span><span>存储管理</span><span class="nav-arrow">▶</span></div><ul class="nav-submenu"><li><a href="storage.html" class="nav-link">存储卷</a></li><li><a href="storageclasses.html" class="nav-link">存储类</a></li></ul></li></ul></nav>
+            <nav class="nav-section"><div class="nav-section-title">配置</div><ul class="nav-menu"><li class="nav-item"><div class="nav-link" onclick="toggleSubmenu(this)"><span class="nav-icon">📋</span><span>配置管理</span><span class="nav-arrow">▶</span></div><ul class="nav-submenu"><li><a href="configmaps.html" class="nav-link">ConfigMaps</a></li><li><a href="secrets.html" class="nav-link">Secrets</a></li></ul></li></ul></nav>
+            <nav class="nav-section"><div class="nav-section-title">监控告警</div><ul class="nav-menu"><li class="nav-item"><a href="monitoring.html" class="nav-link"><span class="nav-icon">📊</span><span>监控中心</span></a></li><li class="nav-item"><a href="alerts.html" class="nav-link"><span class="nav-icon">🔔</span><span>告警管理</span></a></li><li class="nav-item"><a href="events.html" class="nav-link"><span class="nav-icon">📜</span><span>事件日志</span></a></li></ul></nav>
+        </aside>
+        <main class="main">
+            <header class="header">
+                <nav class="breadcrumb"><a href="index.html">工作台</a><span>/</span><a href="workloads.html">工作负载</a><span>/</span><span>Jobs</span></nav>
+                <div class="header-actions"><div class="search-box"><span>🔍</span><input type="text" placeholder="搜索资源..."></div><div class="header-icon">🔔</div><div class="header-icon">⚙️</div><div class="user-avatar">A</div></div>
+            </header>
+            <div class="content">
+                <div class="card">
+                    <div class="table-toolbar">
+                        <div class="toolbar-left">
+                            <select class="filter-select"><option value="">全部命名空间</option><option>default</option><option>production</option><option>batch</option></select>
+                            <select class="filter-select"><option value="">全部状态</option><option>完成</option><option>运行中</option><option>失败</option></select>
+                        </div>
+                        <div class="toolbar-right">
+                            <input type="text" class="search-input" placeholder="按名称搜索...">
+                            <button class="btn btn-primary">+ 创建 Job</button>
+                        </div>
+                    </div>
+                    <table class="data-table">
+                        <thead><tr><th>名称</th><th>状态</th><th>完成数</th><th>运行时长</th><th>镜像</th><th>创建时间</th><th>操作</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td><div class="resource-cell"><div class="resource-icon-small">⚡</div><div><a href="#" class="resource-name-link">backup-job-28391</a><div class="resource-namespace">production</div></div></div></td>
+                                <td><span class="status-badge complete"><span class="status-dot-sm"></span>完成</span></td>
+                                <td class="completions">1/1</td>
+                                <td class="duration">15m 32s</td>
+                                <td>backup-tool:v2.1</td>
+                                <td>2024-01-15 02:00</td>
+                                <td><div class="action-btns"><button class="action-btn">📜</button><button class="action-btn">🔄</button><button class="action-btn">🗑️</button></div></td>
+                            </tr>
+                            <tr>
+                                <td><div class="resource-cell"><div class="resource-icon-small">⚡</div><div><a href="#" class="resource-name-link">data-migration-v2</a><div class="resource-namespace">production</div></div></div></td>
+                                <td><span class="status-badge running"><span class="status-dot-sm"></span>运行中</span></td>
+                                <td class="completions">2/5</td>
+                                <td class="duration">45m 18s</td>
+                                <td>migrate:v1.3</td>
+                                <td>2024-01-15 10:30</td>
+                                <td><div class="action-btns"><button class="action-btn">📜</button><button class="action-btn">🔄</button><button class="action-btn">🗑️</button></div></td>
+                            </tr>
+                            <tr>
+                                <td><div class="resource-cell"><div class="resource-icon-small">⚡</div><div><a href="#" class="resource-name-link">report-generator</a><div class="resource-namespace">batch</div></div></div></td>
+                                <td><span class="status-badge complete"><span class="status-dot-sm"></span>完成</span></td>
+                                <td class="completions">3/3</td>
+                                <td class="duration">8m 45s</td>
+                                <td>report-gen:v1.0</td>
+                                <td>2024-01-15 06:00</td>
+                                <td><div class="action-btns"><button class="action-btn">📜</button><button class="action-btn">🔄</button><button class="action-btn">🗑️</button></div></td>
+                            </tr>
+                            <tr>
+                                <td><div class="resource-cell"><div class="resource-icon-small">⚡</div><div><a href="#" class="resource-name-link">cleanup-temp-files</a><div class="resource-namespace">default</div></div></div></td>
+                                <td><span class="status-badge failed"><span class="status-dot-sm"></span>失败</span></td>
+                                <td class="completions">0/1</td>
+                                <td class="duration">2m 10s</td>
+                                <td>cleanup:v1.2</td>
+                                <td>2024-01-14 23:00</td>
+                                <td><div class="action-btns"><button class="action-btn">📜</button><button class="action-btn">🔄</button><button class="action-btn">🗑️</button></div></td>
+                            </tr>
+                            <tr>
+                                <td><div class="resource-cell"><div class="resource-icon-small">⚡</div><div><a href="#" class="resource-name-link">index-rebuild</a><div class="resource-namespace">database</div></div></div></td>
+                                <td><span class="status-badge complete"><span class="status-dot-sm"></span>完成</span></td>
+                                <td class="completions">1/1</td>
+                                <td class="duration">1h 23m</td>
+                                <td>db-tools:v3.0</td>
+                                <td>2024-01-14 01:00</td>
+                                <td><div class="action-btns"><button class="action-btn">📜</button><button class="action-btn">🔄</button><button class="action-btn">🗑️</button></div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="pagination"><div class="pagination-info">共 8 条记录</div><div class="pagination-controls"><button class="pagination-btn" disabled>◀</button><button class="pagination-btn active">1</button><button class="pagination-btn">▶</button></div></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script>function toggleSubmenu(e){e.parentElement.classList.toggle('expanded')}</script>
+</body>
+</html>
