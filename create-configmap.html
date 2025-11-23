@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KubeSphere - 创建配置字典</title>
+    <link rel="stylesheet" href="base.css">
+    <style>
+        .create-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--ks-border);
+        }
+        .create-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--ks-text);
+            margin: 0;
+        }
+        .form-section {
+            margin-bottom: 32px;
+        }
+        .form-section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--ks-text);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--ks-border);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ks-text);
+        }
+        .form-label .required {
+            color: var(--ks-danger);
+            margin-left: 2px;
+        }
+        .form-hint {
+            font-size: 12px;
+            color: var(--ks-text-secondary);
+            margin-top: 4px;
+        }
+        .form-input {
+            padding: 10px 12px;
+            border: 1px solid var(--ks-border);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--ks-primary);
+        }
+        .form-select {
+            padding: 10px 12px;
+            border: 1px solid var(--ks-border);
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+        .data-entries {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .data-entry {
+            background: var(--ks-bg-dark);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .data-entry-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: rgba(85, 188, 138, 0.1);
+            border-bottom: 1px solid var(--ks-border);
+        }
+        .data-entry-key-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--ks-border);
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            background: white;
+        }
+        .data-entry-key-input:focus {
+            outline: none;
+            border-color: var(--ks-primary);
+        }
+        .data-entry-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .entry-action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ks-text-secondary);
+        }
+        .entry-action-btn:hover {
+            background: var(--ks-border);
+        }
+        .entry-action-btn.delete:hover {
+            color: var(--ks-danger);
+            background: rgba(202, 38, 33, 0.1);
+        }
+        .data-entry-content {
+            padding: 0;
+        }
+        .data-entry-content textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 16px;
+            border: none;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            resize: vertical;
+            background: var(--ks-bg-dark);
+        }
+        .data-entry-content textarea:focus {
+            outline: none;
+        }
+        .add-entry-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border: 2px dashed var(--ks-border);
+            background: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--ks-primary);
+            font-size: 13px;
+            margin-top: 16px;
+            transition: all 0.2s;
+        }
+        .add-entry-btn:hover {
+            background: rgba(50, 157, 206, 0.05);
+            border-color: var(--ks-primary);
+        }
+        .import-options {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .import-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border: 1px solid var(--ks-border);
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--ks-text);
+            font-size: 13px;
+        }
+        .import-btn:hover {
+            background: var(--ks-bg-dark);
+            border-color: var(--ks-primary);
+            color: var(--ks-primary);
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--ks-border);
+        }
+        .label-section {
+            padding: 16px;
+            background: var(--ks-bg-dark);
+            border-radius: 8px;
+        }
+        .label-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 40px;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: end;
+        }
+        .remove-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            color: var(--ks-danger);
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .remove-btn:hover {
+            background: rgba(202, 38, 33, 0.1);
+        }
+        .add-label-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border: 1px dashed var(--ks-border);
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--ks-primary);
+            font-size: 12px;
+        }
+        .add-label-btn:hover {
+            background: rgba(50, 157, 206, 0.05);
+            border-color: var(--ks-primary);
+        }
+        .entry-type-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 4px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 6px;
+        }
+        .entry-type-tab {
+            padding: 6px 12px;
+            font-size: 12px;
+            border: none;
+            background: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: var(--ks-text-secondary);
+        }
+        .entry-type-tab.active {
+            background: white;
+            color: var(--ks-text);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="ks-layout ks-layout-with-sidebar" id="app"></div>
+    <script src="shared.js"></script>
+    <script>
+        document.getElementById('app').innerHTML = `
+            ${getSidebarHTML('configmaps')}
+            <main class="ks-main ks-main-with-sidebar">
+                ${getHeaderHTML([
+                    {text: '工作台', href: 'index.html'},
+                    {text: '配置中心', href: 'configmaps.html'},
+                    {text: 'ConfigMaps', href: 'configmaps.html'},
+                    {text: '创建配置字典'}
+                ])}
+                <div class="ks-content">
+                    <div class="ks-card">
+                        <div class="create-header">
+                            <h1>创建配置字典 (ConfigMap)</h1>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">基本信息</div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">名称 <span class="required">*</span></label>
+                                    <input type="text" class="form-input" placeholder="请输入 ConfigMap 名称">
+                                    <span class="form-hint">只能包含小写字母、数字、连字符和点号</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">命名空间 <span class="required">*</span></label>
+                                    <select class="form-select">
+                                        <option value="">选择命名空间</option>
+                                        <option value="default">default</option>
+                                        <option value="production" selected>production</option>
+                                        <option value="staging">staging</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label class="form-label">描述</label>
+                                    <input type="text" class="form-input" placeholder="添加描述（可选）">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">配置数据</div>
+                            <div class="import-options">
+                                <button class="import-btn">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                    从文件导入
+                                </button>
+                                <button class="import-btn">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                    从 YAML 导入
+                                </button>
+                            </div>
+
+                            <div class="data-entries">
+                                <div class="data-entry">
+                                    <div class="data-entry-header">
+                                        <input type="text" class="data-entry-key-input" placeholder="键名（如 application.properties）" value="application.properties">
+                                        <div class="entry-type-tabs">
+                                            <button class="entry-type-tab active">文本</button>
+                                            <button class="entry-type-tab">文件</button>
+                                        </div>
+                                        <div class="data-entry-actions">
+                                            <button class="entry-action-btn" title="复制">
+                                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                            </button>
+                                            <button class="entry-action-btn delete" title="删除">
+                                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="data-entry-content">
+                                        <textarea placeholder="输入配置内容...">server.port=8080
+spring.application.name=my-app
+spring.profiles.active=production
+
+# Database
+spring.datasource.url=jdbc:mysql://mysql:3306/db
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# Redis
+spring.redis.host=redis-master
+spring.redis.port=6379</textarea>
+                                    </div>
+                                </div>
+
+                                <div class="data-entry">
+                                    <div class="data-entry-header">
+                                        <input type="text" class="data-entry-key-input" placeholder="键名" value="config.json">
+                                        <div class="entry-type-tabs">
+                                            <button class="entry-type-tab active">文本</button>
+                                            <button class="entry-type-tab">文件</button>
+                                        </div>
+                                        <div class="data-entry-actions">
+                                            <button class="entry-action-btn" title="复制">
+                                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                            </button>
+                                            <button class="entry-action-btn delete" title="删除">
+                                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="data-entry-content">
+                                        <textarea placeholder="输入配置内容...">{
+  "featureFlags": {
+    "enableNewUI": true,
+    "enableBeta": false
+  },
+  "limits": {
+    "maxUploadSize": 10485760
+  }
+}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button class="add-entry-btn">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                添加数据条目
+                            </button>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">标签</div>
+                            <div class="label-section">
+                                <div class="label-row">
+                                    <div class="form-group">
+                                        <label class="form-label">键</label>
+                                        <input type="text" class="form-input" placeholder="key" value="app">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">值</label>
+                                        <input type="text" class="form-input" placeholder="value" value="my-app">
+                                    </div>
+                                    <button class="remove-btn" title="删除">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    </button>
+                                </div>
+                                <div class="label-row">
+                                    <div class="form-group">
+                                        <label class="form-label">键</label>
+                                        <input type="text" class="form-input" placeholder="key" value="env">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">值</label>
+                                        <input type="text" class="form-input" placeholder="value" value="production">
+                                    </div>
+                                    <button class="remove-btn" title="删除">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    </button>
+                                </div>
+                                <button class="add-label-btn">
+                                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    添加标签
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="ks-btn" onclick="location.href='configmaps.html'">取消</button>
+                            <button class="ks-btn" onclick="location.href='yaml-editor.html'">编辑 YAML</button>
+                            <button class="ks-btn ks-btn-primary">创建</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        `;
+    </script>
+</body>
+</html>

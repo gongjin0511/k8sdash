@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KubeSphere - 容器日志</title>
+    <link rel="stylesheet" href="base.css">
+    <style>
+        .logs-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border-color); }
+        .logs-title { display: flex; align-items: center; gap: 12px; }
+        .logs-title svg { width: 20px; height: 20px; color: var(--ks-primary); }
+        .logs-title h3 { font-size: 16px; font-weight: 600; }
+        .logs-meta { font-size: 13px; color: var(--text-secondary); }
+        .logs-controls { display: flex; align-items: center; gap: 12px; }
+        .logs-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--content-bg); border-bottom: 1px solid var(--border-color); }
+        .toolbar-group { display: flex; align-items: center; gap: 12px; }
+        .log-option { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); }
+        .log-option input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--ks-primary); }
+        .log-option select { padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 13px; background: #fff; }
+        .search-logs { display: flex; align-items: center; background: #fff; border: 1px solid var(--border-color); border-radius: 4px; padding: 6px 12px; }
+        .search-logs input { border: none; outline: none; font-size: 13px; width: 200px; }
+        .search-logs svg { width: 16px; height: 16px; color: var(--text-secondary); }
+        .logs-container { background: #1e1e1e; color: #d4d4d4; font-family: 'SF Mono', Monaco, 'Courier New', monospace; font-size: 12px; line-height: 1.6; padding: 16px 20px; min-height: 500px; max-height: calc(100vh - 280px); overflow: auto; }
+        .log-line { display: flex; white-space: pre-wrap; word-break: break-all; }
+        .log-line:hover { background: rgba(255, 255, 255, 0.05); }
+        .log-timestamp { color: #6a9955; margin-right: 12px; flex-shrink: 0; user-select: none; }
+        .log-level-info { color: #4fc1ff; }
+        .log-level-warn { color: #ce9178; }
+        .log-level-error { color: #f14c4c; }
+        .log-content { flex: 1; }
+        .logs-footer { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-top: 1px solid var(--border-color); background: var(--content-bg); }
+        .logs-status { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); }
+        .status-indicator { width: 8px; height: 8px; border-radius: 50%; background: var(--ks-success); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .logs-actions { display: flex; gap: 8px; }
+    </style>
+</head>
+<body>
+    <div class="ks-layout ks-layout-with-sidebar" id="app"></div>
+    <script src="shared.js"></script>
+    <script>
+        document.getElementById('app').innerHTML = `
+            ${getSidebarHTML('pods')}
+            <main class="ks-main ks-main-with-sidebar">
+                ${getHeaderHTML([{text: '工作台', href: 'index.html'}, {text: 'Pods', href: 'pods.html'}, {text: 'nginx-deployment-xxx', href: 'pod-detail.html'}, {text: '容器日志'}])}
+                <div class="ks-content">
+                    <div class="ks-card" style="overflow: hidden;">
+                        <div class="logs-header">
+                            <div class="logs-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                                <div>
+                                    <h3>容器日志</h3>
+                                    <div class="logs-meta">nginx-deployment-7fb96c846b-x2j5k / nginx</div>
+                                </div>
+                            </div>
+                            <div class="logs-controls">
+                                <select class="ks-select" style="width: auto;">
+                                    <option value="nginx" selected>nginx</option>
+                                    <option value="sidecar">sidecar-proxy</option>
+                                </select>
+                                <button class="ks-btn ks-btn-default" onclick="history.back()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                                    返回
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="logs-toolbar">
+                            <div class="toolbar-group">
+                                <label class="log-option">
+                                    <input type="checkbox" checked> 显示时间戳
+                                </label>
+                                <label class="log-option">
+                                    <input type="checkbox" checked> 自动滚动
+                                </label>
+                                <label class="log-option">
+                                    <input type="checkbox"> 显示上一个容器日志
+                                </label>
+                                <div class="log-option">
+                                    <span>显示行数:</span>
+                                    <select>
+                                        <option>100</option>
+                                        <option selected>500</option>
+                                        <option>1000</option>
+                                        <option>全部</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="toolbar-group">
+                                <div class="search-logs">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                                    <input type="text" placeholder="搜索日志...">
+                                </div>
+                                <button class="ks-btn ks-btn-default" title="刷新">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="logs-container" id="logsContainer">
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:30:15.123Z</span><span class="log-content"><span class="log-level-info">[info]</span> Starting nginx/1.21.0</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:30:15.125Z</span><span class="log-content"><span class="log-level-info">[info]</span> nginx: the configuration file /etc/nginx/nginx.conf syntax is ok</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:30:15.126Z</span><span class="log-content"><span class="log-level-info">[info]</span> nginx: configuration file /etc/nginx/nginx.conf test is successful</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:30:15.130Z</span><span class="log-content"><span class="log-level-info">[notice]</span> using the "epoll" event method</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:30:15.131Z</span><span class="log-content"><span class="log-level-info">[notice]</span> nginx/1.21.0</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:30:15.132Z</span><span class="log-content"><span class="log-level-info">[notice]</span> built by gcc 10.3.1 20210424 (Alpine 10.3.1_git20210424)</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:30:15.133Z</span><span class="log-content"><span class="log-level-info">[notice]</span> OS: Linux 5.15.0-89-generic</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:30:15.140Z</span><span class="log-content"><span class="log-level-info">[notice]</span> start worker processes</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:30:15.141Z</span><span class="log-content"><span class="log-level-info">[notice]</span> start worker process 29</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:30:15.142Z</span><span class="log-content"><span class="log-level-info">[notice]</span> start worker process 30</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:31:02.456Z</span><span class="log-content">10.244.0.1 - - [15/Jan/2024:10:31:02 +0000] "GET /health HTTP/1.1" 200 2 "-" "kube-probe/1.28"</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:31:12.789Z</span><span class="log-content">10.244.0.1 - - [15/Jan/2024:10:31:12 +0000] "GET /health HTTP/1.1" 200 2 "-" "kube-probe/1.28"</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:31:22.123Z</span><span class="log-content">10.244.0.1 - - [15/Jan/2024:10:31:22 +0000] "GET /health HTTP/1.1" 200 2 "-" "kube-probe/1.28"</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:32:05.567Z</span><span class="log-content">10.244.1.25 - - [15/Jan/2024:10:32:05 +0000] "GET / HTTP/1.1" 200 612 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:32:05.890Z</span><span class="log-content">10.244.1.25 - - [15/Jan/2024:10:32:05 +0000] "GET /favicon.ico HTTP/1.1" 404 153 "-" "Mozilla/5.0"</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:32:06.123Z</span><span class="log-content"><span class="log-level-warn">[warn]</span> *1 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory)</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:33:15.456Z</span><span class="log-content">10.244.2.30 - - [15/Jan/2024:10:33:15 +0000] "GET /api/data HTTP/1.1" 200 1024 "-" "curl/7.81.0"</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:34:22.789Z</span><span class="log-content">10.244.1.25 - - [15/Jan/2024:10:34:22 +0000] "POST /api/submit HTTP/1.1" 201 45 "-" "Mozilla/5.0"</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:35:00.000Z</span><span class="log-content"><span class="log-level-error">[error]</span> *15 upstream timed out (110: Connection timed out) while connecting to upstream</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:35:30.123Z</span><span class="log-content">10.244.0.1 - - [15/Jan/2024:10:35:30 +0000] "GET /health HTTP/1.1" 200 2 "-" "kube-probe/1.28"</span></div>
+<div class="log-line"><span class="log-timestamp">2024-01-15T10:36:00.456Z</span><span class="log-content"><span class="log-level-info">[info]</span> Graceful shutdown initiated</span></div>
+                        </div>
+
+                        <div class="logs-footer">
+                            <div class="logs-status">
+                                <span class="status-indicator"></span>
+                                <span>实时日志流</span>
+                                <span style="margin-left: 16px;">已显示 21 行</span>
+                            </div>
+                            <div class="logs-actions">
+                                <button class="ks-btn ks-btn-default">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                    下载日志
+                                </button>
+                                <button class="ks-btn ks-btn-default">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                    复制全部
+                                </button>
+                                <button class="ks-btn ks-btn-default">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                    清空显示
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        `;
+    </script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KubeSphere - 容器终端</title>
+    <link rel="stylesheet" href="base.css">
+    <style>
+        .terminal-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: #1e1e1e; border-bottom: 1px solid #333; }
+        .terminal-title { display: flex; align-items: center; gap: 12px; color: #fff; }
+        .terminal-title svg { width: 18px; height: 18px; color: var(--ks-success); }
+        .terminal-title h3 { font-size: 14px; font-weight: 500; }
+        .terminal-meta { font-size: 12px; color: #888; margin-left: 8px; }
+        .terminal-controls { display: flex; align-items: center; gap: 8px; }
+        .terminal-btn { padding: 6px 12px; border-radius: 4px; border: 1px solid #444; background: #2d2d2d; color: #ccc; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
+        .terminal-btn:hover { background: #3d3d3d; border-color: #555; }
+        .terminal-btn svg { width: 14px; height: 14px; }
+        .terminal-toolbar { display: flex; align-items: center; gap: 12px; padding: 8px 20px; background: #252526; border-bottom: 1px solid #333; }
+        .shell-select { padding: 4px 8px; border: 1px solid #444; border-radius: 4px; background: #1e1e1e; color: #ccc; font-size: 12px; }
+        .connection-status { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #888; margin-left: auto; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .status-dot.connected { background: var(--ks-success); }
+        .status-dot.disconnected { background: var(--ks-danger); }
+        .terminal-container { background: #1e1e1e; min-height: calc(100vh - 200px); padding: 16px 20px; font-family: 'SF Mono', Monaco, 'Courier New', monospace; font-size: 13px; line-height: 1.5; color: #d4d4d4; }
+        .terminal-line { white-space: pre-wrap; word-break: break-all; }
+        .terminal-prompt { color: var(--ks-success); }
+        .terminal-path { color: #569cd6; }
+        .terminal-input { display: flex; align-items: center; margin-top: 8px; }
+        .terminal-input .prompt { color: var(--ks-success); margin-right: 8px; }
+        .terminal-input input { flex: 1; background: transparent; border: none; outline: none; color: #d4d4d4; font-family: inherit; font-size: inherit; caret-color: #fff; }
+        .terminal-cursor { display: inline-block; width: 8px; height: 16px; background: #d4d4d4; animation: blink 1s step-end infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+        .output-success { color: var(--ks-success); }
+        .output-error { color: #f14c4c; }
+        .output-info { color: #4fc1ff; }
+        .output-warning { color: #ce9178; }
+        .terminal-footer { display: flex; align-items: center; justify-content: space-between; padding: 8px 20px; background: #252526; border-top: 1px solid #333; }
+        .terminal-tips { font-size: 11px; color: #666; }
+        .terminal-tips kbd { background: #3d3d3d; padding: 2px 6px; border-radius: 3px; margin: 0 2px; }
+    </style>
+</head>
+<body>
+    <div class="ks-layout ks-layout-with-sidebar" id="app"></div>
+    <script src="shared.js"></script>
+    <script>
+        document.getElementById('app').innerHTML = `
+            ${getSidebarHTML('pods')}
+            <main class="ks-main ks-main-with-sidebar">
+                ${getHeaderHTML([{text: '工作台', href: 'index.html'}, {text: 'Pods', href: 'pods.html'}, {text: 'nginx-deployment-xxx', href: 'pod-detail.html'}, {text: '容器终端'}])}
+                <div class="ks-content">
+                    <div class="ks-card" style="overflow: hidden; padding: 0;">
+                        <div class="terminal-header">
+                            <div class="terminal-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+                                <h3>容器终端</h3>
+                                <span class="terminal-meta">nginx-deployment-7fb96c846b-x2j5k / nginx</span>
+                            </div>
+                            <div class="terminal-controls">
+                                <button class="terminal-btn" title="全屏">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                                </button>
+                                <button class="terminal-btn" onclick="history.back()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    关闭
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="terminal-toolbar">
+                            <span style="color: #888; font-size: 12px;">Shell:</span>
+                            <select class="shell-select">
+                                <option value="sh">/bin/sh</option>
+                                <option value="bash" selected>/bin/bash</option>
+                                <option value="zsh">/bin/zsh</option>
+                            </select>
+                            <span style="color: #888; font-size: 12px; margin-left: 16px;">容器:</span>
+                            <select class="shell-select">
+                                <option value="nginx" selected>nginx</option>
+                                <option value="sidecar">sidecar-proxy</option>
+                            </select>
+                            <div class="connection-status">
+                                <span class="status-dot connected"></span>
+                                <span>已连接</span>
+                            </div>
+                        </div>
+
+                        <div class="terminal-container" id="terminal">
+                            <div class="terminal-line"><span class="terminal-prompt">root@nginx-deployment-7fb96c846b-x2j5k</span>:<span class="terminal-path">/app</span># whoami</div>
+                            <div class="terminal-line">root</div>
+                            <div class="terminal-line">&nbsp;</div>
+                            <div class="terminal-line"><span class="terminal-prompt">root@nginx-deployment-7fb96c846b-x2j5k</span>:<span class="terminal-path">/app</span># cat /etc/os-release</div>
+                            <div class="terminal-line output-info">NAME="Alpine Linux"</div>
+                            <div class="terminal-line output-info">ID=alpine</div>
+                            <div class="terminal-line output-info">VERSION_ID=3.18.4</div>
+                            <div class="terminal-line output-info">PRETTY_NAME="Alpine Linux v3.18"</div>
+                            <div class="terminal-line">&nbsp;</div>
+                            <div class="terminal-line"><span class="terminal-prompt">root@nginx-deployment-7fb96c846b-x2j5k</span>:<span class="terminal-path">/app</span># ls -la</div>
+                            <div class="terminal-line">total 24</div>
+                            <div class="terminal-line">drwxr-xr-x    1 root     root          4096 Jan 15 10:30 <span style="color: #569cd6;">.</span></div>
+                            <div class="terminal-line">drwxr-xr-x    1 root     root          4096 Jan 15 10:30 <span style="color: #569cd6;">..</span></div>
+                            <div class="terminal-line">-rw-r--r--    1 root     root           612 Jan 10 08:00 index.html</div>
+                            <div class="terminal-line">drwxr-xr-x    2 root     root          4096 Jan 10 08:00 <span style="color: #569cd6;">css</span></div>
+                            <div class="terminal-line">drwxr-xr-x    2 root     root          4096 Jan 10 08:00 <span style="color: #569cd6;">js</span></div>
+                            <div class="terminal-line">&nbsp;</div>
+                            <div class="terminal-line"><span class="terminal-prompt">root@nginx-deployment-7fb96c846b-x2j5k</span>:<span class="terminal-path">/app</span># nginx -v</div>
+                            <div class="terminal-line">nginx version: nginx/1.21.0</div>
+                            <div class="terminal-line">&nbsp;</div>
+                            <div class="terminal-line"><span class="terminal-prompt">root@nginx-deployment-7fb96c846b-x2j5k</span>:<span class="terminal-path">/app</span># ps aux</div>
+                            <div class="terminal-line">PID   USER     TIME  COMMAND</div>
+                            <div class="terminal-line">    1 root      0:00 nginx: master process nginx -g daemon off;</div>
+                            <div class="terminal-line">   29 nginx     0:01 nginx: worker process</div>
+                            <div class="terminal-line">   30 nginx     0:01 nginx: worker process</div>
+                            <div class="terminal-line">  156 root      0:00 /bin/bash</div>
+                            <div class="terminal-line">  178 root      0:00 ps aux</div>
+                            <div class="terminal-line">&nbsp;</div>
+                            <div class="terminal-line"><span class="terminal-prompt">root@nginx-deployment-7fb96c846b-x2j5k</span>:<span class="terminal-path">/app</span># df -h</div>
+                            <div class="terminal-line">Filesystem      Size  Used Avail Use% Mounted on</div>
+                            <div class="terminal-line">overlay          50G   12G   35G  26% /</div>
+                            <div class="terminal-line">tmpfs            64M     0   64M   0% /dev</div>
+                            <div class="terminal-line">/dev/sda1        50G   12G   35G  26% /etc/hosts</div>
+                            <div class="terminal-line">shm              64M     0   64M   0% /dev/shm</div>
+                            <div class="terminal-line">&nbsp;</div>
+                            <div class="terminal-input">
+                                <span class="prompt"><span class="terminal-prompt">root@nginx-deployment-7fb96c846b-x2j5k</span>:<span class="terminal-path">/app</span>#</span>
+                                <input type="text" id="terminalInput" autofocus placeholder="">
+                                <span class="terminal-cursor"></span>
+                            </div>
+                        </div>
+
+                        <div class="terminal-footer">
+                            <div class="terminal-tips">
+                                <kbd>Ctrl</kbd>+<kbd>C</kbd> 中断命令 |
+                                <kbd>Ctrl</kbd>+<kbd>D</kbd> 退出终端 |
+                                <kbd>Tab</kbd> 自动补全 |
+                                <kbd>↑</kbd><kbd>↓</kbd> 历史命令
+                            </div>
+                            <div style="font-size: 11px; color: #666;">
+                                会话时长: 00:05:32
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        `;
+    </script>
+</body>
+</html>

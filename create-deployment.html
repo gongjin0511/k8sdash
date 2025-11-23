@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KubeSphere - 创建 Deployment</title>
+    <link rel="stylesheet" href="base.css">
+    <style>
+        .create-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
+        .create-title { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
+        .create-title svg { width: 24px; height: 24px; color: var(--ks-primary); }
+        .create-steps { display: flex; align-items: center; gap: 8px; padding: 20px 24px; background: var(--content-bg); border-bottom: 1px solid var(--border-color); }
+        .step { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 14px; }
+        .step-number { width: 28px; height: 28px; border-radius: 50%; background: var(--border-color); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; }
+        .step.active { color: var(--ks-primary); }
+        .step.active .step-number { background: var(--ks-primary); color: #fff; }
+        .step.completed .step-number { background: var(--ks-success); color: #fff; }
+        .step-divider { width: 40px; height: 2px; background: var(--border-color); }
+        .step-divider.completed { background: var(--ks-success); }
+        .create-body { padding: 24px; max-width: 900px; }
+        .form-section { margin-bottom: 32px; }
+        .section-title { font-size: 15px; font-weight: 600; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px; }
+        .section-title svg { width: 18px; height: 18px; color: var(--ks-primary); }
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group.full-width { grid-column: span 2; }
+        .form-label { font-size: 13px; font-weight: 500; color: var(--text-primary); display: flex; align-items: center; gap: 4px; }
+        .form-label .required { color: var(--ks-danger); }
+        .form-label .tip { color: var(--text-secondary); font-weight: normal; }
+        .form-input, .form-select, .form-textarea { padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px; transition: border-color 0.2s; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--ks-primary); }
+        .form-textarea { min-height: 100px; resize: vertical; font-family: inherit; }
+        .form-help { font-size: 12px; color: var(--text-secondary); }
+        .form-row { display: flex; gap: 12px; align-items: flex-start; }
+        .form-row .form-group { flex: 1; }
+        .resource-inputs { display: flex; gap: 12px; }
+        .resource-input { flex: 1; }
+        .resource-input label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+        .container-card { background: var(--content-bg); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+        .container-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .container-title { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .container-title svg { width: 18px; height: 18px; color: var(--ks-primary); }
+        .remove-btn { color: var(--ks-danger); background: none; border: none; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px; }
+        .add-container-btn { display: flex; align-items: center; gap: 8px; padding: 12px; border: 2px dashed var(--border-color); border-radius: 8px; color: var(--text-secondary); cursor: pointer; justify-content: center; transition: all 0.2s; }
+        .add-container-btn:hover { border-color: var(--ks-primary); color: var(--ks-primary); }
+        .port-row { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
+        .port-row input, .port-row select { flex: 1; }
+        .port-row button { flex-shrink: 0; }
+        .env-row { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
+        .env-row input { flex: 1; }
+        .create-footer { padding: 16px 24px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); position: sticky; bottom: 0; }
+        .footer-left { display: flex; gap: 12px; }
+        .footer-right { display: flex; gap: 12px; }
+        .switch-group { display: flex; align-items: center; gap: 12px; }
+        .switch { position: relative; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: var(--border-color); border-radius: 24px; transition: 0.3s; }
+        .switch-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+        .switch input:checked + .switch-slider { background: var(--ks-primary); }
+        .switch input:checked + .switch-slider:before { transform: translateX(20px); }
+    </style>
+</head>
+<body>
+    <div class="ks-layout ks-layout-with-sidebar" id="app"></div>
+    <script src="shared.js"></script>
+    <script>
+        document.getElementById('app').innerHTML = `
+            ${getSidebarHTML('workloads')}
+            <main class="ks-main ks-main-with-sidebar">
+                ${getHeaderHTML([{text: '工作台', href: 'index.html'}, {text: '工作负载', href: 'workloads.html'}, {text: '创建 Deployment'}])}
+                <div class="ks-content">
+                    <div class="ks-card" style="padding: 0;">
+                        <div class="create-header">
+                            <div class="create-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                                创建 Deployment
+                            </div>
+                            <button class="ks-btn ks-btn-default" onclick="location.href='yaml-editor.html'">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                编辑 YAML
+                            </button>
+                        </div>
+
+                        <div class="create-steps">
+                            <div class="step active">
+                                <span class="step-number">1</span>
+                                <span>基本信息</span>
+                            </div>
+                            <div class="step-divider"></div>
+                            <div class="step">
+                                <span class="step-number">2</span>
+                                <span>容器配置</span>
+                            </div>
+                            <div class="step-divider"></div>
+                            <div class="step">
+                                <span class="step-number">3</span>
+                                <span>存储配置</span>
+                            </div>
+                            <div class="step-divider"></div>
+                            <div class="step">
+                                <span class="step-number">4</span>
+                                <span>高级设置</span>
+                            </div>
+                        </div>
+
+                        <div class="create-body">
+                            <!-- 基本信息 -->
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                    基本信息
+                                </div>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label class="form-label">名称 <span class="required">*</span></label>
+                                        <input type="text" class="form-input" placeholder="请输入 Deployment 名称">
+                                        <span class="form-help">由小写字母、数字和连字符组成，必须以字母开头</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">命名空间 <span class="required">*</span></label>
+                                        <select class="form-select">
+                                            <option value="">请选择命名空间</option>
+                                            <option value="default">default</option>
+                                            <option value="production">production</option>
+                                            <option value="staging">staging</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">副本数 <span class="required">*</span></label>
+                                        <input type="number" class="form-input" value="3" min="1" max="100">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">版本标签</label>
+                                        <input type="text" class="form-input" placeholder="例如: v1.0.0">
+                                    </div>
+                                    <div class="form-group full-width">
+                                        <label class="form-label">描述</label>
+                                        <textarea class="form-textarea" placeholder="请输入描述信息..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 容器配置 -->
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+                                    容器配置
+                                </div>
+
+                                <div class="container-card">
+                                    <div class="container-header">
+                                        <div class="container-title">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+                                            容器 1
+                                        </div>
+                                        <button class="remove-btn">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                            移除
+                                        </button>
+                                    </div>
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label class="form-label">容器名称 <span class="required">*</span></label>
+                                            <input type="text" class="form-input" placeholder="例如: nginx">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">镜像 <span class="required">*</span></label>
+                                            <input type="text" class="form-input" placeholder="例如: nginx:1.21-alpine">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">镜像拉取策略</label>
+                                            <select class="form-select">
+                                                <option value="IfNotPresent">IfNotPresent</option>
+                                                <option value="Always">Always</option>
+                                                <option value="Never">Never</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">工作目录</label>
+                                            <input type="text" class="form-input" placeholder="/app">
+                                        </div>
+                                        <div class="form-group full-width">
+                                            <label class="form-label">资源配置</label>
+                                            <div class="resource-inputs">
+                                                <div class="resource-input">
+                                                    <label>CPU 请求</label>
+                                                    <input type="text" class="form-input" placeholder="100m">
+                                                </div>
+                                                <div class="resource-input">
+                                                    <label>CPU 限制</label>
+                                                    <input type="text" class="form-input" placeholder="200m">
+                                                </div>
+                                                <div class="resource-input">
+                                                    <label>内存 请求</label>
+                                                    <input type="text" class="form-input" placeholder="128Mi">
+                                                </div>
+                                                <div class="resource-input">
+                                                    <label>内存 限制</label>
+                                                    <input type="text" class="form-input" placeholder="256Mi">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group full-width">
+                                            <label class="form-label">端口配置</label>
+                                            <div class="port-row">
+                                                <input type="text" class="form-input" placeholder="端口名称">
+                                                <input type="number" class="form-input" placeholder="容器端口" value="80">
+                                                <select class="form-select">
+                                                    <option value="TCP">TCP</option>
+                                                    <option value="UDP">UDP</option>
+                                                </select>
+                                                <button class="ks-btn ks-btn-default" style="padding: 8px;">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="form-group full-width">
+                                            <label class="form-label">环境变量</label>
+                                            <div class="env-row">
+                                                <input type="text" class="form-input" placeholder="变量名">
+                                                <input type="text" class="form-input" placeholder="变量值">
+                                                <button class="ks-btn ks-btn-default" style="padding: 8px;">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="add-container-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    添加容器
+                                </div>
+                            </div>
+
+                            <!-- 健康检查 -->
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                                    健康检查
+                                </div>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <div class="switch-group">
+                                            <label class="switch"><input type="checkbox" checked><span class="switch-slider"></span></label>
+                                            <span>启用存活探针 (Liveness Probe)</span>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="switch-group">
+                                            <label class="switch"><input type="checkbox" checked><span class="switch-slider"></span></label>
+                                            <span>启用就绪探针 (Readiness Probe)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="create-footer">
+                            <div class="footer-left">
+                                <button class="ks-btn ks-btn-default" onclick="history.back()">取消</button>
+                            </div>
+                            <div class="footer-right">
+                                <button class="ks-btn ks-btn-default">上一步</button>
+                                <button class="ks-btn ks-btn-primary">下一步</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        `;
+    </script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KubeSphere - Deployment 详情</title>
+    <link rel="stylesheet" href="base.css">
+    <style>
+        .detail-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+        .detail-title { display: flex; align-items: center; gap: 16px; }
+        .detail-icon { width: 48px; height: 48px; border-radius: 8px; background: linear-gradient(135deg, var(--ks-primary), var(--ks-success)); display: flex; align-items: center; justify-content: center; color: #fff; }
+        .detail-icon svg { width: 24px; height: 24px; }
+        .detail-name { font-size: 20px; font-weight: 600; color: var(--text-primary); }
+        .detail-namespace { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+        .detail-actions { display: flex; gap: 12px; }
+        .detail-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
+        .detail-tab { padding: 12px 20px; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .detail-tab:hover { color: var(--ks-primary); }
+        .detail-tab.active { color: var(--ks-primary); border-bottom-color: var(--ks-primary); font-weight: 500; }
+        .section-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .info-item { display: flex; flex-direction: column; gap: 4px; }
+        .info-label { font-size: 12px; color: var(--text-secondary); }
+        .info-value { font-size: 14px; color: var(--text-primary); }
+        .replica-panel { background: var(--content-bg); border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+        .replica-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .replica-title { font-weight: 600; }
+        .replica-controls { display: flex; align-items: center; gap: 12px; }
+        .replica-btn { width: 32px; height: 32px; border: 1px solid var(--border-color); border-radius: 4px; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .replica-btn:hover { border-color: var(--ks-primary); color: var(--ks-primary); }
+        .replica-count { font-size: 18px; font-weight: 600; width: 60px; text-align: center; }
+        .replica-visual { display: flex; gap: 8px; flex-wrap: wrap; }
+        .pod-box { width: 40px; height: 40px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+        .pod-box.running { background: rgba(85, 188, 138, 0.2); border: 1px solid var(--ks-success); color: var(--ks-success); }
+        .pod-box.pending { background: rgba(245, 166, 35, 0.2); border: 1px solid var(--ks-warning); color: var(--ks-warning); }
+        .pod-list { margin-top: 24px; }
+        .revision-list { margin-top: 16px; }
+        .revision-item { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--content-bg); border-radius: 8px; margin-bottom: 12px; }
+        .revision-info { display: flex; align-items: center; gap: 16px; }
+        .revision-number { font-weight: 600; font-size: 16px; }
+        .revision-meta { font-size: 13px; color: var(--text-secondary); }
+        .revision-current { padding: 4px 8px; background: rgba(85, 188, 138, 0.1); color: var(--ks-success); border-radius: 4px; font-size: 12px; font-weight: 500; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .strategy-card { background: var(--content-bg); border-radius: 8px; padding: 20px; }
+        .strategy-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .strategy-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+    <div class="ks-layout ks-layout-with-sidebar" id="app"></div>
+    <script src="shared.js"></script>
+    <script>
+        document.getElementById('app').innerHTML = `
+            ${getSidebarHTML('workloads')}
+            <main class="ks-main ks-main-with-sidebar">
+                ${getHeaderHTML([{text: '工作台', href: 'index.html'}, {text: '工作负载', href: 'workloads.html'}, {text: 'nginx-deployment'}])}
+                <div class="ks-content">
+                    <div class="ks-card" style="padding: 24px;">
+                        <div class="detail-header">
+                            <div class="detail-title">
+                                <div class="detail-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                                </div>
+                                <div>
+                                    <div class="detail-name">nginx-deployment</div>
+                                    <div class="detail-namespace">命名空间: production</div>
+                                </div>
+                                <span class="ks-status ks-status-running" style="margin-left: 12px;"><span class="ks-status-dot"></span>运行中</span>
+                            </div>
+                            <div class="detail-actions">
+                                <button class="ks-btn ks-btn-default" onclick="location.href='yaml-editor.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>编辑 YAML</button>
+                                <button class="ks-btn ks-btn-default"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>编辑</button>
+                                <button class="ks-btn ks-btn-default"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3"/></svg>重新部署</button>
+                                <button class="ks-btn ks-btn-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>删除</button>
+                            </div>
+                        </div>
+
+                        <div class="detail-tabs">
+                            <div class="detail-tab active" onclick="switchTab('overview')">概览</div>
+                            <div class="detail-tab" onclick="switchTab('pods')">Pods (3)</div>
+                            <div class="detail-tab" onclick="switchTab('revisions')">版本记录</div>
+                            <div class="detail-tab" onclick="switchTab('events')">事件</div>
+                            <div class="detail-tab" onclick="switchTab('metadata')">元数据</div>
+                        </div>
+
+                        <div id="tab-overview" class="tab-content active">
+                            <!-- 副本管理 -->
+                            <div class="replica-panel">
+                                <div class="replica-header">
+                                    <div class="replica-title">副本管理</div>
+                                    <div class="replica-controls">
+                                        <button class="replica-btn">-</button>
+                                        <span class="replica-count">3</span>
+                                        <button class="replica-btn">+</button>
+                                        <button class="ks-btn ks-btn-primary" style="margin-left: 12px;">应用</button>
+                                    </div>
+                                </div>
+                                <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">当前 3/3 个 Pod 正在运行</div>
+                                <div class="replica-visual">
+                                    <div class="pod-box running" title="nginx-xxx-abc">Pod</div>
+                                    <div class="pod-box running" title="nginx-xxx-def">Pod</div>
+                                    <div class="pod-box running" title="nginx-xxx-ghi">Pod</div>
+                                </div>
+                            </div>
+
+                            <!-- 基本信息 -->
+                            <div class="section-title">基本信息</div>
+                            <div class="info-grid">
+                                <div class="info-item"><span class="info-label">名称</span><span class="info-value">nginx-deployment</span></div>
+                                <div class="info-item"><span class="info-label">命名空间</span><span class="info-value">production</span></div>
+                                <div class="info-item"><span class="info-label">创建时间</span><span class="info-value">2024-01-10 10:30:00</span></div>
+                                <div class="info-item"><span class="info-label">更新时间</span><span class="info-value">2024-01-15 14:22:00</span></div>
+                                <div class="info-item"><span class="info-label">镜像</span><span class="info-value">nginx:1.21-alpine</span></div>
+                                <div class="info-item"><span class="info-label">更新策略</span><span class="info-value">RollingUpdate</span></div>
+                            </div>
+
+                            <!-- 更新策略 -->
+                            <div class="section-title">更新策略</div>
+                            <div class="strategy-card">
+                                <div class="strategy-item">
+                                    <span style="color: var(--text-secondary);">策略类型</span>
+                                    <span style="font-weight: 500;">RollingUpdate</span>
+                                </div>
+                                <div class="strategy-item">
+                                    <span style="color: var(--text-secondary);">最大不可用 (maxUnavailable)</span>
+                                    <span style="font-weight: 500;">25%</span>
+                                </div>
+                                <div class="strategy-item">
+                                    <span style="color: var(--text-secondary);">最大超出 (maxSurge)</span>
+                                    <span style="font-weight: 500;">25%</span>
+                                </div>
+                                <div class="strategy-item">
+                                    <span style="color: var(--text-secondary);">最小就绪时间</span>
+                                    <span style="font-weight: 500;">10s</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="tab-pods" class="tab-content">
+                            <table class="ks-table">
+                                <thead><tr><th>名称</th><th>状态</th><th>节点</th><th>Pod IP</th><th>重启次数</th><th>创建时间</th><th>操作</th></tr></thead>
+                                <tbody>
+                                    <tr><td><a href="pod-detail.html" style="color: var(--ks-primary); text-decoration: none;">nginx-deployment-7fb96c846b-x2j5k</a></td><td><span class="ks-status ks-status-running"><span class="ks-status-dot"></span>Running</span></td><td>worker-02</td><td>10.244.2.15</td><td>0</td><td>2024-01-15 10:30</td><td><div class="ks-action-btns"><button class="ks-action-btn" title="日志" onclick="location.href='container-logs.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></button><button class="ks-action-btn" title="终端" onclick="location.href='container-terminal.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></button><button class="ks-action-btn" title="删除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></td></tr>
+                                    <tr><td><a href="pod-detail.html" style="color: var(--ks-primary); text-decoration: none;">nginx-deployment-7fb96c846b-a3b4c</a></td><td><span class="ks-status ks-status-running"><span class="ks-status-dot"></span>Running</span></td><td>worker-01</td><td>10.244.1.22</td><td>0</td><td>2024-01-15 10:30</td><td><div class="ks-action-btns"><button class="ks-action-btn" title="日志"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></button><button class="ks-action-btn" title="终端"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></button><button class="ks-action-btn" title="删除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></td></tr>
+                                    <tr><td><a href="pod-detail.html" style="color: var(--ks-primary); text-decoration: none;">nginx-deployment-7fb96c846b-d5e6f</a></td><td><span class="ks-status ks-status-running"><span class="ks-status-dot"></span>Running</span></td><td>worker-03</td><td>10.244.3.8</td><td>0</td><td>2024-01-15 10:30</td><td><div class="ks-action-btns"><button class="ks-action-btn" title="日志"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></button><button class="ks-action-btn" title="终端"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></button><button class="ks-action-btn" title="删除"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></div></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="tab-revisions" class="tab-content">
+                            <div class="revision-list">
+                                <div class="revision-item">
+                                    <div class="revision-info">
+                                        <span class="revision-number">#3</span>
+                                        <div>
+                                            <div style="font-weight: 500;">nginx:1.21-alpine</div>
+                                            <div class="revision-meta">2024-01-15 14:22 - 当前版本</div>
+                                        </div>
+                                        <span class="revision-current">当前</span>
+                                    </div>
+                                    <button class="ks-btn ks-btn-default" disabled>回滚</button>
+                                </div>
+                                <div class="revision-item">
+                                    <div class="revision-info">
+                                        <span class="revision-number">#2</span>
+                                        <div>
+                                            <div style="font-weight: 500;">nginx:1.20-alpine</div>
+                                            <div class="revision-meta">2024-01-12 09:15</div>
+                                        </div>
+                                    </div>
+                                    <button class="ks-btn ks-btn-default">回滚</button>
+                                </div>
+                                <div class="revision-item">
+                                    <div class="revision-info">
+                                        <span class="revision-number">#1</span>
+                                        <div>
+                                            <div style="font-weight: 500;">nginx:1.19-alpine</div>
+                                            <div class="revision-meta">2024-01-10 10:30</div>
+                                        </div>
+                                    </div>
+                                    <button class="ks-btn ks-btn-default">回滚</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="tab-events" class="tab-content">
+                            <table class="ks-table">
+                                <thead><tr><th>类型</th><th>原因</th><th>消息</th><th>时间</th></tr></thead>
+                                <tbody>
+                                    <tr><td><span class="ks-tag ks-tag-success">Normal</span></td><td>ScalingReplicaSet</td><td>Scaled up replica set nginx-deployment-7fb96c846b to 3</td><td>2024-01-15 10:30</td></tr>
+                                    <tr><td><span class="ks-tag ks-tag-success">Normal</span></td><td>ScalingReplicaSet</td><td>Scaled down replica set nginx-deployment-6fb85c735a to 0</td><td>2024-01-15 10:32</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div id="tab-metadata" class="tab-content">
+                            <div class="section-title">标签 (Labels)</div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;">
+                                <span class="ks-tag ks-tag-primary">app=nginx</span>
+                                <span class="ks-tag ks-tag-primary">env=production</span>
+                                <span class="ks-tag ks-tag-primary">version=v1.21</span>
+                            </div>
+                            <div class="section-title">注解 (Annotations)</div>
+                            <div class="info-grid">
+                                <div class="info-item"><span class="info-label">deployment.kubernetes.io/revision</span><span class="info-value">3</span></div>
+                                <div class="info-item"><span class="info-label">kubernetes.io/change-cause</span><span class="info-value">Update image to nginx:1.21-alpine</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        `;
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+    </script>
+</body>
+</html>

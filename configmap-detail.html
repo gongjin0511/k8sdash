@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KubeSphere - ConfigMap 详情</title>
+    <link rel="stylesheet" href="base.css">
+    <style>
+        .detail-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .detail-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #55bc8a, #3d9970);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+        .detail-icon svg {
+            width: 32px;
+            height: 32px;
+        }
+        .detail-info h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            color: var(--ks-text);
+        }
+        .detail-meta {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .detail-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--ks-text-secondary);
+        }
+        .detail-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+        .detail-tabs {
+            display: flex;
+            gap: 4px;
+            border-bottom: 1px solid var(--ks-border);
+            margin-bottom: 20px;
+        }
+        .detail-tab {
+            padding: 12px 20px;
+            font-size: 14px;
+            color: var(--ks-text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+        }
+        .detail-tab:hover {
+            color: var(--ks-primary);
+        }
+        .detail-tab.active {
+            color: var(--ks-primary);
+            border-bottom-color: var(--ks-primary);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .info-section {
+            margin-bottom: 24px;
+        }
+        .info-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ks-text);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--ks-border);
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .info-label {
+            font-size: 12px;
+            color: var(--ks-text-secondary);
+        }
+        .info-value {
+            font-size: 14px;
+            color: var(--ks-text);
+            font-weight: 500;
+        }
+        .data-item {
+            background: var(--ks-bg-dark);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .data-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: rgba(85, 188, 138, 0.1);
+            border-bottom: 1px solid var(--ks-border);
+        }
+        .data-item-key {
+            font-weight: 600;
+            color: var(--ks-text);
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+        }
+        .data-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .data-action-btn {
+            padding: 4px 12px;
+            font-size: 12px;
+            background: white;
+            border: 1px solid var(--ks-border);
+            border-radius: 4px;
+            cursor: pointer;
+            color: var(--ks-text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .data-action-btn:hover {
+            background: var(--ks-bg-dark);
+            color: var(--ks-primary);
+        }
+        .data-item-content {
+            padding: 16px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            color: var(--ks-text);
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .data-item-content.collapsed {
+            max-height: 80px;
+            overflow: hidden;
+            position: relative;
+        }
+        .data-item-content.collapsed::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: linear-gradient(transparent, var(--ks-bg-dark));
+        }
+        .expand-btn {
+            padding: 8px 16px;
+            text-align: center;
+            color: var(--ks-primary);
+            cursor: pointer;
+            font-size: 12px;
+            border-top: 1px solid var(--ks-border);
+        }
+        .expand-btn:hover {
+            background: rgba(50, 157, 206, 0.05);
+        }
+        .selector-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .selector-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            background: rgba(85, 188, 138, 0.1);
+            border: 1px solid rgba(85, 188, 138, 0.2);
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+        .selector-key {
+            color: var(--ks-success);
+        }
+        .selector-sep {
+            color: var(--ks-text-secondary);
+            margin: 0 4px;
+        }
+        .selector-value {
+            color: var(--ks-text);
+        }
+        .usage-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .usage-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--ks-bg-dark);
+            border-radius: 6px;
+        }
+        .usage-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: rgba(50, 157, 206, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ks-primary);
+        }
+        .usage-info {
+            flex: 1;
+        }
+        .usage-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ks-primary);
+            cursor: pointer;
+        }
+        .usage-name:hover {
+            text-decoration: underline;
+        }
+        .usage-type {
+            font-size: 11px;
+            color: var(--ks-text-secondary);
+        }
+        .usage-mount {
+            font-size: 12px;
+            color: var(--ks-text-secondary);
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+        .empty-state {
+            padding: 40px;
+            text-align: center;
+            color: var(--ks-text-secondary);
+        }
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="ks-layout ks-layout-with-sidebar" id="app"></div>
+    <script src="shared.js"></script>
+    <script>
+        const configMapName = 'app-config';
+        const namespace = 'production';
+
+        document.getElementById('app').innerHTML = `
+            ${getSidebarHTML('configmaps')}
+            <main class="ks-main ks-main-with-sidebar">
+                ${getHeaderHTML([
+                    {text: '工作台', href: 'index.html'},
+                    {text: '配置中心', href: 'configmaps.html'},
+                    {text: 'ConfigMaps', href: 'configmaps.html'},
+                    {text: configMapName}
+                ])}
+                <div class="ks-content">
+                    <div class="ks-card">
+                        <div class="detail-header">
+                            <div class="detail-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                                </svg>
+                            </div>
+                            <div class="detail-info">
+                                <h1>${configMapName}</h1>
+                                <div class="detail-meta">
+                                    <div class="detail-meta-item">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                                        ${namespace}
+                                    </div>
+                                    <div class="detail-meta-item">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+                                        3 个配置项
+                                    </div>
+                                    <div class="detail-meta-item">
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                        创建于 2024-01-08 14:30
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="detail-actions">
+                                <button class="ks-btn" onclick="location.href='yaml-editor.html'">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                    查看 YAML
+                                </button>
+                                <button class="ks-btn ks-btn-primary">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                    编辑
+                                </button>
+                                <button class="ks-btn" style="color: var(--ks-danger);">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                                    删除
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="detail-tabs">
+                            <div class="detail-tab active" onclick="switchTab('data')">配置数据</div>
+                            <div class="detail-tab" onclick="switchTab('usage')">使用情况</div>
+                            <div class="detail-tab" onclick="switchTab('metadata')">元数据</div>
+                        </div>
+
+                        <!-- 配置数据 Tab -->
+                        <div id="tab-data" class="tab-content active">
+                            <div class="data-item">
+                                <div class="data-item-header">
+                                    <span class="data-item-key">application.properties</span>
+                                    <div class="data-item-actions">
+                                        <button class="data-action-btn">
+                                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                            复制
+                                        </button>
+                                        <button class="data-action-btn">
+                                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                            编辑
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="data-item-content">server.port=8080
+spring.application.name=api-gateway
+spring.profiles.active=production
+
+# Database Configuration
+spring.datasource.url=jdbc:mysql://mysql:3306/appdb
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# Redis Configuration
+spring.redis.host=redis-master
+spring.redis.port=6379
+
+# Logging
+logging.level.root=INFO
+logging.level.com.example=DEBUG</div>
+                            </div>
+
+                            <div class="data-item">
+                                <div class="data-item-header">
+                                    <span class="data-item-key">nginx.conf</span>
+                                    <div class="data-item-actions">
+                                        <button class="data-action-btn">
+                                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                            复制
+                                        </button>
+                                        <button class="data-action-btn">
+                                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                            编辑
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="data-item-content">worker_processes auto;
+events {
+    worker_connections 1024;
+}
+http {
+    upstream backend {
+        server api-gateway:8080;
+    }
+    server {
+        listen 80;
+        location / {
+            proxy_pass http://backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+    }
+}</div>
+                            </div>
+
+                            <div class="data-item">
+                                <div class="data-item-header">
+                                    <span class="data-item-key">feature-flags.json</span>
+                                    <div class="data-item-actions">
+                                        <button class="data-action-btn">
+                                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                                            复制
+                                        </button>
+                                        <button class="data-action-btn">
+                                            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                            编辑
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="data-item-content">{
+  "enableNewUI": true,
+  "enableBetaFeatures": false,
+  "maxUploadSize": 10485760,
+  "supportedLanguages": ["zh", "en", "ja"]
+}</div>
+                            </div>
+                        </div>
+
+                        <!-- 使用情况 Tab -->
+                        <div id="tab-usage" class="tab-content">
+                            <div class="info-section">
+                                <div class="info-section-title">挂载此 ConfigMap 的工作负载</div>
+                                <div class="usage-list">
+                                    <div class="usage-item">
+                                        <div class="usage-icon">
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                                        </div>
+                                        <div class="usage-info">
+                                            <div class="usage-name" onclick="location.href='deployment-detail.html'">api-gateway</div>
+                                            <div class="usage-type">Deployment</div>
+                                        </div>
+                                        <div class="usage-mount">/etc/config</div>
+                                    </div>
+                                    <div class="usage-item">
+                                        <div class="usage-icon">
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                                        </div>
+                                        <div class="usage-info">
+                                            <div class="usage-name" onclick="location.href='deployment-detail.html'">nginx-proxy</div>
+                                            <div class="usage-type">Deployment</div>
+                                        </div>
+                                        <div class="usage-mount">/etc/nginx</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 元数据 Tab -->
+                        <div id="tab-metadata" class="tab-content">
+                            <div class="info-section">
+                                <div class="info-section-title">标签</div>
+                                <div class="selector-list">
+                                    <span class="selector-tag">
+                                        <span class="selector-key">app</span>
+                                        <span class="selector-sep">=</span>
+                                        <span class="selector-value">api-gateway</span>
+                                    </span>
+                                    <span class="selector-tag">
+                                        <span class="selector-key">env</span>
+                                        <span class="selector-sep">=</span>
+                                        <span class="selector-value">production</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="info-section">
+                                <div class="info-section-title">注解</div>
+                                <div class="selector-list">
+                                    <span class="selector-tag">
+                                        <span class="selector-key">kubernetes.io/created-by</span>
+                                        <span class="selector-sep">=</span>
+                                        <span class="selector-value">kubesphere</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="info-section">
+                                <div class="info-section-title">其他信息</div>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">UID</span>
+                                        <span class="info-value" style="font-family: monospace; font-size: 12px;">c1d2e3f4-5678-90ab-cdef-123456789012</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Resource Version</span>
+                                        <span class="info-value" style="font-family: monospace;">87654321</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">创建时间</span>
+                                        <span class="info-value">2024-01-08 14:30:22</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        `;
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KubeSphere - 创建服务</title>
+    <link rel="stylesheet" href="base.css">
+    <style>
+        .create-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--ks-border);
+        }
+        .create-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--ks-text);
+            margin: 0;
+        }
+        .create-steps {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--ks-bg-dark);
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--ks-text-secondary);
+        }
+        .step.active {
+            background: var(--ks-primary);
+            color: white;
+        }
+        .step.completed {
+            background: rgba(85, 188, 138, 0.1);
+            color: var(--ks-success);
+        }
+        .step-number {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .step.active .step-number {
+            background: rgba(255,255,255,0.2);
+        }
+        .step.completed .step-number {
+            background: var(--ks-success);
+            color: white;
+        }
+        .form-section {
+            margin-bottom: 32px;
+        }
+        .form-section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--ks-text);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--ks-border);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ks-text);
+        }
+        .form-label .required {
+            color: var(--ks-danger);
+            margin-left: 2px;
+        }
+        .form-hint {
+            font-size: 12px;
+            color: var(--ks-text-secondary);
+            margin-top: 4px;
+        }
+        .form-input {
+            padding: 10px 12px;
+            border: 1px solid var(--ks-border);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--ks-primary);
+        }
+        .form-select {
+            padding: 10px 12px;
+            border: 1px solid var(--ks-border);
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+        .service-type-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .service-type-card {
+            padding: 20px;
+            border: 2px solid var(--ks-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .service-type-card:hover {
+            border-color: var(--ks-primary);
+        }
+        .service-type-card.selected {
+            border-color: var(--ks-primary);
+            background: rgba(50, 157, 206, 0.05);
+        }
+        .service-type-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background: rgba(50, 157, 206, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ks-primary);
+            margin-bottom: 12px;
+        }
+        .service-type-card.selected .service-type-icon {
+            background: var(--ks-primary);
+            color: white;
+        }
+        .service-type-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ks-text);
+            margin-bottom: 4px;
+        }
+        .service-type-desc {
+            font-size: 12px;
+            color: var(--ks-text-secondary);
+            line-height: 1.5;
+        }
+        .port-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .port-item {
+            display: grid;
+            grid-template-columns: 120px 100px 120px 100px 40px;
+            gap: 12px;
+            align-items: end;
+            padding: 16px;
+            background: var(--ks-bg-dark);
+            border-radius: 8px;
+        }
+        .port-item .form-group {
+            margin-bottom: 0;
+        }
+        .remove-port-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            color: var(--ks-danger);
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .remove-port-btn:hover {
+            background: rgba(202, 38, 33, 0.1);
+        }
+        .add-port-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            border: 1px dashed var(--ks-border);
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--ks-primary);
+            font-size: 13px;
+            margin-top: 12px;
+        }
+        .add-port-btn:hover {
+            background: rgba(50, 157, 206, 0.05);
+            border-color: var(--ks-primary);
+        }
+        .selector-section {
+            padding: 20px;
+            background: var(--ks-bg-dark);
+            border-radius: 8px;
+        }
+        .selector-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 40px;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: end;
+        }
+        .selector-preview {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid var(--ks-border);
+        }
+        .selector-preview-title {
+            font-size: 12px;
+            color: var(--ks-text-secondary);
+            margin-bottom: 8px;
+        }
+        .selector-preview-pods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .matched-pod {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(85, 188, 138, 0.1);
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--ks-success);
+        }
+        .matched-pod svg {
+            width: 12px;
+            height: 12px;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--ks-border);
+        }
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .toggle-switch input {
+            width: 40px;
+            height: 22px;
+            appearance: none;
+            background: var(--ks-border);
+            border-radius: 11px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .toggle-switch input::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            transition: left 0.2s;
+        }
+        .toggle-switch input:checked {
+            background: var(--ks-primary);
+        }
+        .toggle-switch input:checked::after {
+            left: 20px;
+        }
+        .session-affinity-options {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border: 1px solid var(--ks-border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .radio-option:hover {
+            border-color: var(--ks-primary);
+        }
+        .radio-option.selected {
+            border-color: var(--ks-primary);
+            background: rgba(50, 157, 206, 0.05);
+        }
+        .radio-option input {
+            display: none;
+        }
+        .radio-dot {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--ks-border);
+            border-radius: 50%;
+            position: relative;
+        }
+        .radio-option.selected .radio-dot {
+            border-color: var(--ks-primary);
+        }
+        .radio-option.selected .radio-dot::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 6px;
+            height: 6px;
+            background: var(--ks-primary);
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="ks-layout ks-layout-with-sidebar" id="app"></div>
+    <script src="shared.js"></script>
+    <script>
+        document.getElementById('app').innerHTML = `
+            ${getSidebarHTML('services')}
+            <main class="ks-main ks-main-with-sidebar">
+                ${getHeaderHTML([
+                    {text: '工作台', href: 'index.html'},
+                    {text: '服务与网络', href: 'services.html'},
+                    {text: 'Services', href: 'services.html'},
+                    {text: '创建服务'}
+                ])}
+                <div class="ks-content">
+                    <div class="ks-card">
+                        <div class="create-header">
+                            <h1>创建服务 (Service)</h1>
+                        </div>
+
+                        <div class="create-steps">
+                            <div class="step active">
+                                <span class="step-number">1</span>
+                                <span>基本信息</span>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">2</span>
+                                <span>服务设置</span>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">3</span>
+                                <span>高级设置</span>
+                            </div>
+                        </div>
+
+                        <!-- Step 1: 基本信息 -->
+                        <div class="form-section">
+                            <div class="form-section-title">基本信息</div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">名称 <span class="required">*</span></label>
+                                    <input type="text" class="form-input" placeholder="请输入服务名称">
+                                    <span class="form-hint">服务名称只能包含小写字母、数字和连字符</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">命名空间 <span class="required">*</span></label>
+                                    <select class="form-select">
+                                        <option value="">选择命名空间</option>
+                                        <option value="default">default</option>
+                                        <option value="production" selected>production</option>
+                                        <option value="staging">staging</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label class="form-label">描述</label>
+                                    <input type="text" class="form-input" placeholder="添加服务描述（可选）">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">服务类型</div>
+                            <div class="service-type-cards">
+                                <div class="service-type-card selected" onclick="selectServiceType(this)">
+                                    <div class="service-type-icon">
+                                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <circle cx="12" cy="12" r="4"/>
+                                        </svg>
+                                    </div>
+                                    <div class="service-type-name">ClusterIP</div>
+                                    <div class="service-type-desc">集群内部访问，分配一个集群内部 IP</div>
+                                </div>
+                                <div class="service-type-card" onclick="selectServiceType(this)">
+                                    <div class="service-type-icon">
+                                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <rect x="2" y="3" width="20" height="14" rx="2"/>
+                                            <line x1="8" y1="21" x2="16" y2="21"/>
+                                            <line x1="12" y1="17" x2="12" y2="21"/>
+                                        </svg>
+                                    </div>
+                                    <div class="service-type-name">NodePort</div>
+                                    <div class="service-type-desc">通过节点端口从外部访问服务</div>
+                                </div>
+                                <div class="service-type-card" onclick="selectServiceType(this)">
+                                    <div class="service-type-icon">
+                                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <line x1="2" y1="12" x2="22" y2="12"/>
+                                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                        </svg>
+                                    </div>
+                                    <div class="service-type-name">LoadBalancer</div>
+                                    <div class="service-type-desc">使用云提供商的负载均衡器</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">端口配置</div>
+                            <div class="port-list">
+                                <div class="port-item">
+                                    <div class="form-group">
+                                        <label class="form-label">名称</label>
+                                        <input type="text" class="form-input" placeholder="http" value="http">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">协议</label>
+                                        <select class="form-select">
+                                            <option value="TCP" selected>TCP</option>
+                                            <option value="UDP">UDP</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">服务端口 <span class="required">*</span></label>
+                                        <input type="number" class="form-input" placeholder="80" value="80">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">目标端口</label>
+                                        <input type="number" class="form-input" placeholder="8080" value="8080">
+                                    </div>
+                                    <button class="remove-port-btn" title="删除">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    </button>
+                                </div>
+                                <div class="port-item">
+                                    <div class="form-group">
+                                        <label class="form-label">名称</label>
+                                        <input type="text" class="form-input" placeholder="name" value="metrics">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">协议</label>
+                                        <select class="form-select">
+                                            <option value="TCP" selected>TCP</option>
+                                            <option value="UDP">UDP</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">服务端口 <span class="required">*</span></label>
+                                        <input type="number" class="form-input" placeholder="9090" value="9090">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">目标端口</label>
+                                        <input type="number" class="form-input" placeholder="9090" value="9090">
+                                    </div>
+                                    <button class="remove-port-btn" title="删除">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="add-port-btn">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                添加端口
+                            </button>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">选择器 (Selector)</div>
+                            <div class="selector-section">
+                                <div class="selector-row">
+                                    <div class="form-group">
+                                        <label class="form-label">键</label>
+                                        <input type="text" class="form-input" placeholder="app" value="app">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">值</label>
+                                        <input type="text" class="form-input" placeholder="my-app" value="api-gateway">
+                                    </div>
+                                    <button class="remove-port-btn" title="删除">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    </button>
+                                </div>
+                                <button class="add-port-btn">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    添加选择器
+                                </button>
+
+                                <div class="selector-preview">
+                                    <div class="selector-preview-title">匹配的 Pods (3 个)</div>
+                                    <div class="selector-preview-pods">
+                                        <span class="matched-pod">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                                            api-gateway-6d4f5b7c8-abc12
+                                        </span>
+                                        <span class="matched-pod">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                                            api-gateway-6d4f5b7c8-def34
+                                        </span>
+                                        <span class="matched-pod">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                                            api-gateway-6d4f5b7c8-ghi56
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">高级设置</div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Session Affinity</label>
+                                    <div class="session-affinity-options">
+                                        <label class="radio-option selected" onclick="selectRadio(this)">
+                                            <input type="radio" name="affinity" value="None" checked>
+                                            <span class="radio-dot"></span>
+                                            <span>None</span>
+                                        </label>
+                                        <label class="radio-option" onclick="selectRadio(this)">
+                                            <input type="radio" name="affinity" value="ClientIP">
+                                            <span class="radio-dot"></span>
+                                            <span>ClientIP</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">External Traffic Policy</label>
+                                    <div class="session-affinity-options">
+                                        <label class="radio-option selected" onclick="selectRadio(this)">
+                                            <input type="radio" name="traffic" value="Cluster" checked>
+                                            <span class="radio-dot"></span>
+                                            <span>Cluster</span>
+                                        </label>
+                                        <label class="radio-option" onclick="selectRadio(this)">
+                                            <input type="radio" name="traffic" value="Local">
+                                            <span class="radio-dot"></span>
+                                            <span>Local</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="ks-btn" onclick="location.href='services.html'">取消</button>
+                            <button class="ks-btn" onclick="location.href='yaml-editor.html'">编辑 YAML</button>
+                            <button class="ks-btn ks-btn-primary">创建</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        `;
+
+        function selectServiceType(card) {
+            document.querySelectorAll('.service-type-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+        }
+
+        function selectRadio(option) {
+            const name = option.querySelector('input').name;
+            document.querySelectorAll(\`input[name="\${name}"]\`).forEach(input => {
+                input.closest('.radio-option').classList.remove('selected');
+            });
+            option.classList.add('selected');
+            option.querySelector('input').checked = true;
+        }
+    </script>
+</body>
+</html>

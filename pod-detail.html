@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KubeSphere - Pod 详情</title>
+    <link rel="stylesheet" href="base.css">
+    <style>
+        .detail-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+        .detail-title { display: flex; align-items: center; gap: 16px; }
+        .detail-icon { width: 48px; height: 48px; border-radius: 8px; background: linear-gradient(135deg, var(--ks-primary), var(--ks-success)); display: flex; align-items: center; justify-content: center; color: #fff; }
+        .detail-icon svg { width: 24px; height: 24px; }
+        .detail-name { font-size: 20px; font-weight: 600; color: var(--text-primary); }
+        .detail-namespace { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+        .detail-actions { display: flex; gap: 12px; }
+        .detail-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; }
+        .detail-tab { padding: 12px 20px; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+        .detail-tab:hover { color: var(--ks-primary); }
+        .detail-tab.active { color: var(--ks-primary); border-bottom-color: var(--ks-primary); font-weight: 500; }
+        .detail-section { margin-bottom: 24px; }
+        .section-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+        .info-item { display: flex; flex-direction: column; gap: 4px; }
+        .info-label { font-size: 12px; color: var(--text-secondary); }
+        .info-value { font-size: 14px; color: var(--text-primary); }
+        .container-card { background: var(--content-bg); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+        .container-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .container-name { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .container-status { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+        .container-actions { display: flex; gap: 8px; }
+        .container-btn { padding: 6px 12px; border-radius: 4px; border: 1px solid var(--border-color); background: #fff; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; color: var(--text-secondary); }
+        .container-btn:hover { border-color: var(--ks-primary); color: var(--ks-primary); }
+        .container-btn svg { width: 14px; height: 14px; }
+        .container-info { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; font-size: 13px; }
+        .resource-usage { display: flex; align-items: center; gap: 12px; }
+        .usage-bar { flex: 1; height: 6px; background: var(--border-color); border-radius: 3px; overflow: hidden; }
+        .usage-fill { height: 100%; border-radius: 3px; }
+        .usage-fill.cpu { background: var(--ks-primary); }
+        .usage-fill.memory { background: var(--ks-success); }
+        .event-list { max-height: 400px; overflow-y: auto; }
+        .event-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+        .event-item:last-child { border-bottom: none; }
+        .event-type { width: 70px; flex-shrink: 0; }
+        .event-content { flex: 1; }
+        .event-reason { font-weight: 500; margin-bottom: 4px; }
+        .event-message { font-size: 13px; color: var(--text-secondary); }
+        .event-time { font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
+        .conditions-table { width: 100%; }
+        .conditions-table th, .conditions-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .conditions-table th { background: var(--content-bg); font-weight: 500; font-size: 13px; color: var(--text-secondary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <div class="ks-layout ks-layout-with-sidebar" id="app"></div>
+    <script src="shared.js"></script>
+    <script>
+        document.getElementById('app').innerHTML = `
+            ${getSidebarHTML('pods')}
+            <main class="ks-main ks-main-with-sidebar">
+                ${getHeaderHTML([{text: '工作台', href: 'index.html'}, {text: '工作负载'}, {text: 'Pods', href: 'pods.html'}, {text: 'nginx-deployment-7fb96c846b-x2j5k'}])}
+                <div class="ks-content">
+                    <div class="ks-card" style="padding: 24px;">
+                        <div class="detail-header">
+                            <div class="detail-title">
+                                <div class="detail-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                                </div>
+                                <div>
+                                    <div class="detail-name">nginx-deployment-7fb96c846b-x2j5k</div>
+                                    <div class="detail-namespace">命名空间: production</div>
+                                </div>
+                                <span class="ks-status ks-status-running" style="margin-left: 12px;"><span class="ks-status-dot"></span>Running</span>
+                            </div>
+                            <div class="detail-actions">
+                                <button class="ks-btn ks-btn-default" onclick="location.href='yaml-editor.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>编辑 YAML</button>
+                                <button class="ks-btn ks-btn-default"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>重启</button>
+                                <button class="ks-btn ks-btn-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>删除</button>
+                            </div>
+                        </div>
+
+                        <div class="detail-tabs">
+                            <div class="detail-tab active" onclick="switchTab('overview')">概览</div>
+                            <div class="detail-tab" onclick="switchTab('containers')">容器 (2)</div>
+                            <div class="detail-tab" onclick="switchTab('events')">事件</div>
+                            <div class="detail-tab" onclick="switchTab('conditions')">状态</div>
+                            <div class="detail-tab" onclick="switchTab('metadata')">元数据</div>
+                        </div>
+
+                        <!-- 概览 Tab -->
+                        <div id="tab-overview" class="tab-content active">
+                            <div class="detail-section">
+                                <div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>基本信息</div>
+                                <div class="info-grid">
+                                    <div class="info-item"><span class="info-label">名称</span><span class="info-value">nginx-deployment-7fb96c846b-x2j5k</span></div>
+                                    <div class="info-item"><span class="info-label">命名空间</span><span class="info-value">production</span></div>
+                                    <div class="info-item"><span class="info-label">状态</span><span class="info-value"><span class="ks-status ks-status-running"><span class="ks-status-dot"></span>Running</span></span></div>
+                                    <div class="info-item"><span class="info-label">节点</span><span class="info-value">worker-02</span></div>
+                                    <div class="info-item"><span class="info-label">Pod IP</span><span class="info-value">10.244.2.15</span></div>
+                                    <div class="info-item"><span class="info-label">创建时间</span><span class="info-value">2024-01-15 10:30:00</span></div>
+                                    <div class="info-item"><span class="info-label">重启次数</span><span class="info-value">0</span></div>
+                                    <div class="info-item"><span class="info-label">QoS 类别</span><span class="info-value">Burstable</span></div>
+                                </div>
+                            </div>
+
+                            <div class="detail-section">
+                                <div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>资源使用</div>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">CPU 使用率</span>
+                                        <div class="resource-usage">
+                                            <div class="usage-bar"><div class="usage-fill cpu" style="width: 35%;"></div></div>
+                                            <span style="font-size: 13px;">35% (70m / 200m)</span>
+                                        </div>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">内存使用率</span>
+                                        <div class="resource-usage">
+                                            <div class="usage-bar"><div class="usage-fill memory" style="width: 62%;"></div></div>
+                                            <span style="font-size: 13px;">62% (158Mi / 256Mi)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="detail-section">
+                                <div class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>标签</div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                    <span class="ks-tag ks-tag-primary">app=nginx</span>
+                                    <span class="ks-tag ks-tag-primary">pod-template-hash=7fb96c846b</span>
+                                    <span class="ks-tag ks-tag-primary">version=v1.21</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 容器 Tab -->
+                        <div id="tab-containers" class="tab-content">
+                            <div class="container-card">
+                                <div class="container-header">
+                                    <div class="container-name">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="var(--ks-success)" stroke-width="2" width="18" height="18"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+                                        nginx
+                                        <span class="ks-status ks-status-running" style="font-size: 11px;"><span class="ks-status-dot"></span>Running</span>
+                                    </div>
+                                    <div class="container-actions">
+                                        <a href="container-logs.html" class="container-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>日志</a>
+                                        <a href="container-terminal.html" class="container-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>终端</a>
+                                    </div>
+                                </div>
+                                <div class="container-info">
+                                    <div class="info-item"><span class="info-label">镜像</span><span class="info-value">nginx:1.21-alpine</span></div>
+                                    <div class="info-item"><span class="info-label">端口</span><span class="info-value">80/TCP, 443/TCP</span></div>
+                                    <div class="info-item"><span class="info-label">重启次数</span><span class="info-value">0</span></div>
+                                    <div class="info-item"><span class="info-label">CPU 请求/限制</span><span class="info-value">100m / 200m</span></div>
+                                    <div class="info-item"><span class="info-label">内存 请求/限制</span><span class="info-value">128Mi / 256Mi</span></div>
+                                    <div class="info-item"><span class="info-label">启动时间</span><span class="info-value">2024-01-15 10:30:15</span></div>
+                                </div>
+                            </div>
+
+                            <div class="container-card">
+                                <div class="container-header">
+                                    <div class="container-name">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="var(--ks-success)" stroke-width="2" width="18" height="18"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
+                                        sidecar-proxy
+                                        <span class="ks-status ks-status-running" style="font-size: 11px;"><span class="ks-status-dot"></span>Running</span>
+                                    </div>
+                                    <div class="container-actions">
+                                        <a href="container-logs.html" class="container-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>日志</a>
+                                        <a href="container-terminal.html" class="container-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>终端</a>
+                                    </div>
+                                </div>
+                                <div class="container-info">
+                                    <div class="info-item"><span class="info-label">镜像</span><span class="info-value">envoyproxy/envoy:v1.28</span></div>
+                                    <div class="info-item"><span class="info-label">端口</span><span class="info-value">15001/TCP</span></div>
+                                    <div class="info-item"><span class="info-label">重启次数</span><span class="info-value">0</span></div>
+                                    <div class="info-item"><span class="info-label">CPU 请求/限制</span><span class="info-value">50m / 100m</span></div>
+                                    <div class="info-item"><span class="info-label">内存 请求/限制</span><span class="info-value">64Mi / 128Mi</span></div>
+                                    <div class="info-item"><span class="info-label">启动时间</span><span class="info-value">2024-01-15 10:30:12</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 事件 Tab -->
+                        <div id="tab-events" class="tab-content">
+                            <div class="event-list">
+                                <div class="event-item">
+                                    <div class="event-type"><span class="ks-tag ks-tag-success">Normal</span></div>
+                                    <div class="event-content">
+                                        <div class="event-reason">Started</div>
+                                        <div class="event-message">Started container nginx</div>
+                                    </div>
+                                    <div class="event-time">2 小时前</div>
+                                </div>
+                                <div class="event-item">
+                                    <div class="event-type"><span class="ks-tag ks-tag-success">Normal</span></div>
+                                    <div class="event-content">
+                                        <div class="event-reason">Created</div>
+                                        <div class="event-message">Created container nginx</div>
+                                    </div>
+                                    <div class="event-time">2 小时前</div>
+                                </div>
+                                <div class="event-item">
+                                    <div class="event-type"><span class="ks-tag ks-tag-success">Normal</span></div>
+                                    <div class="event-content">
+                                        <div class="event-reason">Pulled</div>
+                                        <div class="event-message">Container image "nginx:1.21-alpine" already present on machine</div>
+                                    </div>
+                                    <div class="event-time">2 小时前</div>
+                                </div>
+                                <div class="event-item">
+                                    <div class="event-type"><span class="ks-tag ks-tag-success">Normal</span></div>
+                                    <div class="event-content">
+                                        <div class="event-reason">Scheduled</div>
+                                        <div class="event-message">Successfully assigned production/nginx-deployment-7fb96c846b-x2j5k to worker-02</div>
+                                    </div>
+                                    <div class="event-time">2 小时前</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 状态 Tab -->
+                        <div id="tab-conditions" class="tab-content">
+                            <table class="conditions-table">
+                                <thead>
+                                    <tr><th>条件类型</th><th>状态</th><th>最后转换时间</th><th>原因</th><th>消息</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Initialized</td>
+                                        <td><span class="ks-tag ks-tag-success">True</span></td>
+                                        <td>2024-01-15 10:30:00</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Ready</td>
+                                        <td><span class="ks-tag ks-tag-success">True</span></td>
+                                        <td>2024-01-15 10:30:20</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>ContainersReady</td>
+                                        <td><span class="ks-tag ks-tag-success">True</span></td>
+                                        <td>2024-01-15 10:30:20</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                    </tr>
+                                    <tr>
+                                        <td>PodScheduled</td>
+                                        <td><span class="ks-tag ks-tag-success">True</span></td>
+                                        <td>2024-01-15 10:30:00</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- 元数据 Tab -->
+                        <div id="tab-metadata" class="tab-content">
+                            <div class="detail-section">
+                                <div class="section-title">标签 (Labels)</div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                    <span class="ks-tag ks-tag-primary">app=nginx</span>
+                                    <span class="ks-tag ks-tag-primary">pod-template-hash=7fb96c846b</span>
+                                    <span class="ks-tag ks-tag-primary">version=v1.21</span>
+                                    <span class="ks-tag ks-tag-primary">env=production</span>
+                                </div>
+                            </div>
+                            <div class="detail-section">
+                                <div class="section-title">注解 (Annotations)</div>
+                                <div class="info-grid">
+                                    <div class="info-item"><span class="info-label">kubernetes.io/created-by</span><span class="info-value" style="word-break: break-all;">ReplicaSet/nginx-deployment-7fb96c846b</span></div>
+                                    <div class="info-item"><span class="info-label">prometheus.io/scrape</span><span class="info-value">true</span></div>
+                                    <div class="info-item"><span class="info-label">prometheus.io/port</span><span class="info-value">9090</span></div>
+                                </div>
+                            </div>
+                            <div class="detail-section">
+                                <div class="section-title">Owner References</div>
+                                <div class="info-grid">
+                                    <div class="info-item"><span class="info-label">Kind</span><span class="info-value">ReplicaSet</span></div>
+                                    <div class="info-item"><span class="info-label">Name</span><span class="info-value">nginx-deployment-7fb96c846b</span></div>
+                                    <div class="info-item"><span class="info-label">UID</span><span class="info-value">a1b2c3d4-e5f6-7890-abcd-ef1234567890</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        `;
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.detail-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+    </script>
+</body>
+</html>

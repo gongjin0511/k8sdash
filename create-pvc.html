@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KubeSphere - 创建存储卷声明</title>
+    <link rel="stylesheet" href="base.css">
+    <style>
+        .create-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--ks-border);
+        }
+        .create-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--ks-text);
+            margin: 0;
+        }
+        .form-section {
+            margin-bottom: 32px;
+        }
+        .form-section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--ks-text);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--ks-border);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--ks-text);
+        }
+        .form-label .required {
+            color: var(--ks-danger);
+            margin-left: 2px;
+        }
+        .form-hint {
+            font-size: 12px;
+            color: var(--ks-text-secondary);
+            margin-top: 4px;
+        }
+        .form-input {
+            padding: 10px 12px;
+            border: 1px solid var(--ks-border);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--ks-primary);
+        }
+        .form-select {
+            padding: 10px 12px;
+            border: 1px solid var(--ks-border);
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--ks-border);
+        }
+        .storage-class-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .storage-class-card {
+            padding: 20px;
+            border: 2px solid var(--ks-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .storage-class-card:hover {
+            border-color: var(--ks-primary);
+        }
+        .storage-class-card.selected {
+            border-color: var(--ks-primary);
+            background: rgba(50, 157, 206, 0.05);
+        }
+        .storage-class-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            background: rgba(50, 157, 206, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ks-primary);
+            margin-bottom: 12px;
+        }
+        .storage-class-card.selected .storage-class-icon {
+            background: var(--ks-primary);
+            color: white;
+        }
+        .storage-class-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ks-text);
+            margin-bottom: 4px;
+        }
+        .storage-class-provisioner {
+            font-size: 11px;
+            color: var(--ks-text-secondary);
+            font-family: 'Monaco', 'Menlo', monospace;
+            margin-bottom: 8px;
+        }
+        .storage-class-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .storage-feature {
+            font-size: 10px;
+            padding: 2px 8px;
+            background: var(--ks-bg-dark);
+            border-radius: 4px;
+            color: var(--ks-text-secondary);
+        }
+        .access-mode-options {
+            display: flex;
+            gap: 12px;
+        }
+        .access-mode-option {
+            flex: 1;
+            padding: 16px;
+            border: 2px solid var(--ks-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .access-mode-option:hover {
+            border-color: var(--ks-primary);
+        }
+        .access-mode-option.selected {
+            border-color: var(--ks-primary);
+            background: rgba(50, 157, 206, 0.05);
+        }
+        .access-mode-option input {
+            display: none;
+        }
+        .access-mode-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .access-mode-check {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--ks-border);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .access-mode-option.selected .access-mode-check {
+            background: var(--ks-primary);
+            border-color: var(--ks-primary);
+        }
+        .access-mode-option.selected .access-mode-check svg {
+            display: block;
+        }
+        .access-mode-check svg {
+            display: none;
+            width: 12px;
+            height: 12px;
+            stroke: white;
+        }
+        .access-mode-name {
+            font-weight: 600;
+            color: var(--ks-text);
+            font-size: 13px;
+        }
+        .access-mode-desc {
+            font-size: 12px;
+            color: var(--ks-text-secondary);
+            line-height: 1.5;
+        }
+        .capacity-input-group {
+            display: flex;
+            gap: 8px;
+        }
+        .capacity-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--ks-border);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .capacity-input:focus {
+            outline: none;
+            border-color: var(--ks-primary);
+        }
+        .capacity-unit {
+            padding: 10px 16px;
+            border: 1px solid var(--ks-border);
+            border-radius: 4px;
+            background: var(--ks-bg-dark);
+            font-size: 14px;
+            min-width: 80px;
+        }
+        .capacity-slider {
+            margin-top: 16px;
+        }
+        .slider-track {
+            height: 6px;
+            background: var(--ks-border);
+            border-radius: 3px;
+            position: relative;
+            margin-bottom: 8px;
+        }
+        .slider-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: var(--ks-primary);
+            border-radius: 3px;
+            width: 20%;
+        }
+        .slider-handle {
+            position: absolute;
+            top: 50%;
+            left: 20%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
+            background: white;
+            border: 2px solid var(--ks-primary);
+            border-radius: 50%;
+            cursor: grab;
+        }
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--ks-text-secondary);
+        }
+        .info-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            background: rgba(50, 157, 206, 0.1);
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .info-box-icon {
+            color: var(--ks-primary);
+            flex-shrink: 0;
+        }
+        .info-box-content {
+            font-size: 13px;
+            color: var(--ks-text);
+            line-height: 1.6;
+        }
+        .label-section {
+            padding: 16px;
+            background: var(--ks-bg-dark);
+            border-radius: 8px;
+        }
+        .label-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 40px;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: end;
+        }
+        .remove-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            color: var(--ks-danger);
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .remove-btn:hover {
+            background: rgba(202, 38, 33, 0.1);
+        }
+        .add-label-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border: 1px dashed var(--ks-border);
+            background: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--ks-primary);
+            font-size: 12px;
+        }
+        .add-label-btn:hover {
+            background: rgba(50, 157, 206, 0.05);
+            border-color: var(--ks-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="ks-layout ks-layout-with-sidebar" id="app"></div>
+    <script src="shared.js"></script>
+    <script>
+        document.getElementById('app').innerHTML = `
+            ${getSidebarHTML('storage')}
+            <main class="ks-main ks-main-with-sidebar">
+                ${getHeaderHTML([
+                    {text: '工作台', href: 'index.html'},
+                    {text: '存储管理', href: 'storage.html'},
+                    {text: '存储卷声明', href: 'storage.html'},
+                    {text: '创建存储卷声明'}
+                ])}
+                <div class="ks-content">
+                    <div class="ks-card">
+                        <div class="create-header">
+                            <h1>创建存储卷声明 (PersistentVolumeClaim)</h1>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">基本信息</div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">名称 <span class="required">*</span></label>
+                                    <input type="text" class="form-input" placeholder="请输入 PVC 名称">
+                                    <span class="form-hint">只能包含小写字母、数字和连字符</span>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">命名空间 <span class="required">*</span></label>
+                                    <select class="form-select">
+                                        <option value="">选择命名空间</option>
+                                        <option value="default">default</option>
+                                        <option value="production" selected>production</option>
+                                        <option value="staging">staging</option>
+                                    </select>
+                                </div>
+                                <div class="form-group full-width">
+                                    <label class="form-label">描述</label>
+                                    <input type="text" class="form-input" placeholder="添加描述（可选）">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">存储类</div>
+                            <div class="storage-class-cards">
+                                <div class="storage-class-card selected" onclick="selectStorageClass(this)">
+                                    <div class="storage-class-icon">
+                                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                                        </svg>
+                                    </div>
+                                    <div class="storage-class-name">standard</div>
+                                    <div class="storage-class-provisioner">kubernetes.io/gce-pd</div>
+                                    <div class="storage-class-features">
+                                        <span class="storage-feature">默认</span>
+                                        <span class="storage-feature">动态供应</span>
+                                    </div>
+                                </div>
+                                <div class="storage-class-card" onclick="selectStorageClass(this)">
+                                    <div class="storage-class-icon">
+                                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                                        </svg>
+                                    </div>
+                                    <div class="storage-class-name">fast-ssd</div>
+                                    <div class="storage-class-provisioner">kubernetes.io/gce-pd</div>
+                                    <div class="storage-class-features">
+                                        <span class="storage-feature">SSD</span>
+                                        <span class="storage-feature">高性能</span>
+                                    </div>
+                                </div>
+                                <div class="storage-class-card" onclick="selectStorageClass(this)">
+                                    <div class="storage-class-icon">
+                                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                                            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                                            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                                        </svg>
+                                    </div>
+                                    <div class="storage-class-name">nfs-storage</div>
+                                    <div class="storage-class-provisioner">nfs-provisioner</div>
+                                    <div class="storage-class-features">
+                                        <span class="storage-feature">NFS</span>
+                                        <span class="storage-feature">共享存储</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">访问模式 <span class="required">*</span></div>
+                            <div class="access-mode-options">
+                                <label class="access-mode-option selected" onclick="selectAccessMode(this)">
+                                    <input type="checkbox" checked>
+                                    <div class="access-mode-header">
+                                        <div class="access-mode-check">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                                        </div>
+                                        <span class="access-mode-name">ReadWriteOnce (RWO)</span>
+                                    </div>
+                                    <div class="access-mode-desc">卷可以被单个节点以读写方式挂载</div>
+                                </label>
+                                <label class="access-mode-option" onclick="selectAccessMode(this)">
+                                    <input type="checkbox">
+                                    <div class="access-mode-header">
+                                        <div class="access-mode-check">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                                        </div>
+                                        <span class="access-mode-name">ReadOnlyMany (ROX)</span>
+                                    </div>
+                                    <div class="access-mode-desc">卷可以被多个节点以只读方式挂载</div>
+                                </label>
+                                <label class="access-mode-option" onclick="selectAccessMode(this)">
+                                    <input type="checkbox">
+                                    <div class="access-mode-header">
+                                        <div class="access-mode-check">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                                        </div>
+                                        <span class="access-mode-name">ReadWriteMany (RWX)</span>
+                                    </div>
+                                    <div class="access-mode-desc">卷可以被多个节点以读写方式挂载</div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">存储容量 <span class="required">*</span></div>
+                            <div class="form-group" style="max-width: 400px;">
+                                <div class="capacity-input-group">
+                                    <input type="number" class="capacity-input" value="10" min="1">
+                                    <select class="capacity-unit">
+                                        <option value="Gi" selected>GiB</option>
+                                        <option value="Mi">MiB</option>
+                                        <option value="Ti">TiB</option>
+                                    </select>
+                                </div>
+                                <div class="capacity-slider">
+                                    <div class="slider-track">
+                                        <div class="slider-fill"></div>
+                                        <div class="slider-handle"></div>
+                                    </div>
+                                    <div class="slider-labels">
+                                        <span>1 GiB</span>
+                                        <span>50 GiB</span>
+                                        <span>100 GiB</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="info-box">
+                                <div class="info-box-icon">
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                </div>
+                                <div class="info-box-content">
+                                    存储容量一旦创建后通常无法减小。部分存储类支持在线扩容，请确保选择适当的初始容量。
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <div class="form-section-title">标签</div>
+                            <div class="label-section">
+                                <div class="label-row">
+                                    <div class="form-group">
+                                        <label class="form-label">键</label>
+                                        <input type="text" class="form-input" placeholder="key" value="app">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">值</label>
+                                        <input type="text" class="form-input" placeholder="value" value="database">
+                                    </div>
+                                    <button class="remove-btn" title="删除">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    </button>
+                                </div>
+                                <button class="add-label-btn">
+                                    <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    添加标签
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button class="ks-btn" onclick="location.href='storage.html'">取消</button>
+                            <button class="ks-btn" onclick="location.href='yaml-editor.html'">编辑 YAML</button>
+                            <button class="ks-btn ks-btn-primary">创建</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        `;
+
+        function selectStorageClass(card) {
+            document.querySelectorAll('.storage-class-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+        }
+
+        function selectAccessMode(option) {
+            option.classList.toggle('selected');
+            option.querySelector('input').checked = option.classList.contains('selected');
+        }
+    </script>
+</body>
+</html>
