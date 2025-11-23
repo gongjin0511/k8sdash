@@ -3,835 +3,355 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>K8s Dashboard - 工作台</title>
+    <title>KubeSphere</title>
     <link rel="stylesheet" href="base.css">
-    <style>
-        /* Page Specific Styles */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: var(--spacing-xxl);
-        }
-
-        .welcome-card {
-            background: linear-gradient(135deg, var(--dark-color07), var(--dark-color05));
-            color: #fff;
-            padding: var(--spacing-xxl);
-            border-radius: var(--radius-md);
-            margin-bottom: var(--spacing-xxl);
-        }
-
-        .welcome-card h2 {
-            font-size: var(--font-size-xxl);
-            margin-bottom: var(--spacing-sm);
-        }
-
-        .welcome-card p {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: var(--font-size-sm);
-        }
-
-        .quick-actions {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: var(--spacing-md);
-            margin-bottom: var(--spacing-xxl);
-        }
-
-        .quick-action {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: var(--spacing-xl);
-            background: var(--card-bg);
-            border-radius: var(--radius-md);
-            box-shadow: var(--card-shadow);
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-            color: inherit;
-            border: 1px solid transparent;
-        }
-
-        .quick-action:hover {
-            border-color: var(--primary-color);
-            transform: translateY(-2px);
-        }
-
-        .quick-action-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: var(--radius-lg);
-            background: rgba(50, 157, 206, 0.1);
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: var(--spacing-md);
-        }
-
-        .quick-action-icon svg {
-            width: 22px;
-            height: 22px;
-        }
-
-        .quick-action-text {
-            font-size: var(--font-size-sm);
-            color: var(--text-primary);
-        }
-
-        /* Resource Overview */
-        .resource-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: var(--spacing-lg);
-        }
-
-        .resource-card {
-            background: var(--card-bg);
-            border-radius: var(--radius-md);
-            box-shadow: var(--card-shadow);
-            padding: var(--spacing-xl);
-        }
-
-        .resource-card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: var(--spacing-lg);
-        }
-
-        .resource-card-title {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .resource-card-link {
-            color: var(--primary-color);
-            font-size: var(--font-size-xs);
-            text-decoration: none;
-        }
-
-        .resource-card-link:hover {
-            text-decoration: underline;
-        }
-
-        .resource-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: var(--spacing-md) 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .resource-item:last-child {
-            border-bottom: none;
-        }
-
-        .resource-item-left {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-md);
-        }
-
-        .resource-item-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: var(--radius-md);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary-color);
-            background: rgba(50, 157, 206, 0.1);
-        }
-
-        .resource-item-icon svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        .resource-item-name {
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .resource-item-meta {
-            font-size: var(--font-size-xs);
-            color: var(--text-secondary);
-        }
-
-        /* Usage Stats */
-        .usage-card {
-            background: var(--card-bg);
-            border-radius: var(--radius-md);
-            box-shadow: var(--card-shadow);
-        }
-
-        .usage-header {
-            padding: var(--spacing-lg) var(--spacing-xl);
-            border-bottom: 1px solid var(--border-color);
-            font-weight: 600;
-        }
-
-        .usage-body {
-            padding: var(--spacing-xl);
-        }
-
-        .usage-item {
-            margin-bottom: var(--spacing-xl);
-        }
-
-        .usage-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .usage-item-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: var(--spacing-sm);
-        }
-
-        .usage-item-label {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-sm);
-            font-weight: 500;
-        }
-
-        .usage-item-label svg {
-            width: 16px;
-            height: 16px;
-            color: var(--text-secondary);
-        }
-
-        .usage-item-value {
-            font-size: var(--font-size-sm);
-            color: var(--text-secondary);
-        }
-
-        /* Node Grid */
-        .node-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: var(--spacing-lg);
-        }
-
-        .node-card {
-            background: var(--light-color01);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: var(--spacing-lg);
-        }
-
-        .node-card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: var(--spacing-md);
-        }
-
-        .node-card-name {
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .node-card-role {
-            font-size: var(--font-size-xs);
-            padding: 2px 8px;
-            background: rgba(50, 157, 206, 0.15);
-            color: var(--primary-color);
-            border-radius: var(--radius-round);
-        }
-
-        .node-card-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--spacing-md);
-        }
-
-        .node-stat {
-            text-align: center;
-        }
-
-        .node-stat-value {
-            font-size: var(--font-size-xl);
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .node-stat-label {
-            font-size: var(--font-size-xs);
-            color: var(--text-secondary);
-        }
-
-        /* Events */
-        .event-list {
-            list-style: none;
-        }
-
-        .event-item {
-            display: flex;
-            gap: var(--spacing-md);
-            padding: var(--spacing-md) 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .event-item:last-child {
-            border-bottom: none;
-        }
-
-        .event-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-top: 6px;
-            flex-shrink: 0;
-        }
-
-        .event-dot.normal {
-            background: var(--success-color);
-        }
-
-        .event-dot.warning {
-            background: var(--warning-color);
-        }
-
-        .event-content {
-            flex: 1;
-        }
-
-        .event-message {
-            color: var(--text-primary);
-            font-size: var(--font-size-sm);
-            margin-bottom: var(--spacing-xs);
-        }
-
-        .event-meta {
-            font-size: var(--font-size-xs);
-            color: var(--text-secondary);
-        }
-
-        @media (max-width: 1200px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-            .quick-actions {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .node-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .resource-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .quick-actions {
-                grid-template-columns: 1fr 1fr;
-            }
-            .node-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
 </head>
 <body>
-    <!-- Top Bar -->
-    <header class="topbar">
-        <div class="topbar-brand">
-            <div class="topbar-logo">
+    <!-- 顶部导航栏 -->
+    <header class="ks-header">
+        <div class="ks-header-left">
+            <a href="#" class="ks-nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Platform
+            </a>
+            <a href="#" class="ks-nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                App Store
+            </a>
+            <a href="index.html" class="ks-nav-item active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Workbench
+            </a>
+        </div>
+
+        <div class="ks-header-center">
+            <a href="index.html" class="ks-logo">
                 <svg viewBox="0 0 32 32" fill="none">
+                    <path d="M16 2L4 8v8c0 7.732 5.268 14.478 12 16 6.732-1.522 12-8.268 12-16V8L16 2z" fill="url(#ks-grad)"/>
+                    <path d="M16 6l8 4v5.5c0 5.523-3.582 10.285-8 11.5V6z" fill="#fff" fill-opacity="0.3"/>
                     <defs>
-                        <linearGradient id="logo-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#329dce"/>
-                            <stop offset="100%" style="stop-color:#55bc8a"/>
+                        <linearGradient id="ks-grad" x1="4" y1="2" x2="28" y2="26" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#55bc8a"/>
+                            <stop offset="1" stop-color="#329dce"/>
                         </linearGradient>
                     </defs>
-                    <rect width="32" height="32" rx="8" fill="url(#logo-gradient)"/>
-                    <text x="16" y="22" text-anchor="middle" fill="white" font-size="14" font-weight="bold">K8</text>
                 </svg>
-                <span>K8s Dashboard</span>
+                <span class="ks-logo-text">KUBESPHERE</span>
+            </a>
+        </div>
+
+        <div class="ks-header-right">
+            <div class="ks-header-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/></svg>
             </div>
-            <div class="platform-switch">
-                <span>平台管理</span>
+            <div class="ks-user">
+                <div class="ks-user-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <span class="ks-user-name">admin</span>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </div>
         </div>
-        <div class="topbar-nav">
-            <a href="index.html" class="topbar-link active">工作台</a>
-            <a href="cluster.html" class="topbar-link">集群管理</a>
-            <a href="workloads.html" class="topbar-link">应用负载</a>
-            <a href="monitoring.html" class="topbar-link">监控告警</a>
-        </div>
-        <div class="topbar-actions">
-            <div class="topbar-search">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                <input type="text" placeholder="搜索资源...">
-            </div>
-            <div class="topbar-icon" title="通知">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            </div>
-            <div class="topbar-icon" title="设置">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            </div>
-            <div class="topbar-avatar" title="admin">A</div>
-        </div>
     </header>
 
-    <div class="layout">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <nav class="nav-section">
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="index.html" class="nav-link active">
-                            <span class="nav-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                            </span>
-                            <span class="nav-text">工作台</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-
-            <nav class="nav-section">
-                <div class="nav-section-title">集群管理</div>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="cluster.html" class="nav-link">
-                            <span class="nav-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-                            </span>
-                            <span class="nav-text">集群概览</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="nodes.html" class="nav-link">
-                            <span class="nav-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>
-                            </span>
-                            <span class="nav-text">节点管理</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-
-            <nav class="nav-section">
-                <div class="nav-section-title">应用负载</div>
-                <ul class="nav-menu">
-                    <li class="nav-item expanded">
-                        <div class="nav-link" onclick="toggleSubmenu(this)">
-                            <span class="nav-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
-                            </span>
-                            <span class="nav-text">工作负载</span>
-                            <span class="nav-arrow">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                            </span>
-                        </div>
-                        <ul class="nav-submenu">
-                            <li><a href="workloads.html" class="nav-link">Deployments</a></li>
-                            <li><a href="statefulsets.html" class="nav-link">StatefulSets</a></li>
-                            <li><a href="daemonsets.html" class="nav-link">DaemonSets</a></li>
-                            <li><a href="jobs.html" class="nav-link">Jobs</a></li>
-                            <li><a href="cronjobs.html" class="nav-link">CronJobs</a></li>
-                            <li><a href="pods.html" class="nav-link">Pods</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <div class="nav-link" onclick="toggleSubmenu(this)">
-                            <span class="nav-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                            </span>
-                            <span class="nav-text">服务与网络</span>
-                            <span class="nav-arrow">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                            </span>
-                        </div>
-                        <ul class="nav-submenu">
-                            <li><a href="services.html" class="nav-link">Services</a></li>
-                            <li><a href="ingresses.html" class="nav-link">Ingresses</a></li>
-                            <li><a href="networkpolicies.html" class="nav-link">网络策略</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </nav>
-
-            <nav class="nav-section">
-                <div class="nav-section-title">存储</div>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <div class="nav-link" onclick="toggleSubmenu(this)">
-                            <span class="nav-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-                            </span>
-                            <span class="nav-text">存储管理</span>
-                            <span class="nav-arrow">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                            </span>
-                        </div>
-                        <ul class="nav-submenu">
-                            <li><a href="storage.html" class="nav-link">存储卷 (PVC)</a></li>
-                            <li><a href="storageclasses.html" class="nav-link">存储类</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </nav>
-
-            <nav class="nav-section">
-                <div class="nav-section-title">配置</div>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <div class="nav-link" onclick="toggleSubmenu(this)">
-                            <span class="nav-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                            </span>
-                            <span class="nav-text">配置管理</span>
-                            <span class="nav-arrow">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                            </span>
-                        </div>
-                        <ul class="nav-submenu">
-                            <li><a href="configmaps.html" class="nav-link">ConfigMaps</a></li>
-                            <li><a href="secrets.html" class="nav-link">Secrets</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </nav>
-
-            <nav class="nav-section">
-                <div class="nav-section-title">监控告警</div>
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="monitoring.html" class="nav-link">
-                            <span class="nav-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                            </span>
-                            <span class="nav-text">监控中心</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="alerts.html" class="nav-link">
-                            <span class="nav-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                            </span>
-                            <span class="nav-text">告警管理</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="events.html" class="nav-link">
-                            <span class="nav-icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                            </span>
-                            <span class="nav-text">事件日志</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="main">
-            <div class="content">
-                <!-- Welcome Card -->
-                <div class="welcome-card">
-                    <h2>欢迎回来，Admin</h2>
-                    <p>K8s Dashboard - 您的 Kubernetes 集群管理平台</p>
+    <!-- 主体内容 -->
+    <main class="ks-main">
+        <div class="ks-workbench">
+            <!-- 欢迎区域 -->
+            <div class="ks-welcome">
+                <div class="ks-welcome-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 </div>
+                <div class="ks-welcome-info">
+                    <h2>Hello admin</h2>
+                    <div class="ks-welcome-meta">
+                        <span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            Super administrator
+                        </span>
+                        <span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            Last login time: 2024-01-15 10:30:00
+                        </span>
+                    </div>
+                </div>
+            </div>
 
-                <!-- Stats Cards -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon blue">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/></svg>
+            <!-- 统计卡片行 -->
+            <div class="ks-stats-row">
+                <!-- 左侧统计卡片 -->
+                <div class="ks-stats-card">
+                    <div class="ks-stats-grid">
+                        <div class="ks-stat-item">
+                            <div class="ks-stat-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            </div>
+                            <div>
+                                <div class="ks-stat-value">3</div>
+                                <div class="ks-stat-label">Workspaces</div>
+                            </div>
                         </div>
-                        <div class="stat-info">
-                            <h3>5</h3>
-                            <p>节点 (Nodes)</p>
+                        <div class="ks-stat-item">
+                            <div class="ks-stat-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                            </div>
+                            <div>
+                                <div class="ks-stat-value">16</div>
+                                <div class="ks-stat-label">Projects</div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon green">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                        <div class="ks-stat-item">
+                            <div class="ks-stat-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                            </div>
+                            <div>
+                                <div class="ks-stat-value">2</div>
+                                <div class="ks-stat-label">DevOps Projects</div>
+                            </div>
                         </div>
-                        <div class="stat-info">
-                            <h3>24</h3>
-                            <p>命名空间</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon orange">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                        </div>
-                        <div class="stat-info">
-                            <h3>156</h3>
-                            <p>运行中 Pods</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon red">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                        </div>
-                        <div class="stat-info">
-                            <h3>3</h3>
-                            <p>告警事件</p>
+                        <div class="ks-stat-item">
+                            <div class="ks-stat-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            </div>
+                            <div>
+                                <div class="ks-stat-value">8</div>
+                                <div class="ks-stat-label">Accounts</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Quick Actions -->
-                <div class="quick-actions">
-                    <a href="workloads.html" class="quick-action">
-                        <div class="quick-action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
-                        </div>
-                        <span class="quick-action-text">创建 Deployment</span>
-                    </a>
-                    <a href="services.html" class="quick-action">
-                        <div class="quick-action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                        </div>
-                        <span class="quick-action-text">创建 Service</span>
-                    </a>
-                    <a href="configmaps.html" class="quick-action">
-                        <div class="quick-action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                        </div>
-                        <span class="quick-action-text">创建 ConfigMap</span>
-                    </a>
-                    <a href="storage.html" class="quick-action">
-                        <div class="quick-action-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-                        </div>
-                        <span class="quick-action-text">创建存储卷</span>
-                    </a>
-                </div>
-
-                <!-- Dashboard Grid -->
-                <div class="dashboard-grid">
-                    <!-- Left Column -->
-                    <div>
-                        <!-- Resource Usage -->
-                        <div class="usage-card" style="margin-bottom: var(--spacing-xxl);">
-                            <div class="usage-header">资源使用情况</div>
-                            <div class="usage-body">
-                                <div class="usage-item">
-                                    <div class="usage-item-header">
-                                        <span class="usage-item-label">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><rect x="9" y="9" width="6" height="6"/></svg>
-                                            CPU 使用率
-                                        </span>
-                                        <span class="usage-item-value">62% (12.4 / 20 Cores)</span>
-                                    </div>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill blue" style="width: 62%;"></div>
-                                    </div>
-                                </div>
-                                <div class="usage-item">
-                                    <div class="usage-item-header">
-                                        <span class="usage-item-label">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><rect x="2" y="6" width="20" height="12" rx="2"/><line x1="6" y1="10" x2="6" y2="14"/><line x1="10" y1="10" x2="10" y2="14"/><line x1="14" y1="10" x2="14" y2="14"/><line x1="18" y1="10" x2="18" y2="14"/></svg>
-                                            内存使用率
-                                        </span>
-                                        <span class="usage-item-value">78% (31.2 / 40 GiB)</span>
-                                    </div>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill green" style="width: 78%;"></div>
-                                    </div>
-                                </div>
-                                <div class="usage-item">
-                                    <div class="usage-item-header">
-                                        <span class="usage-item-label">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
-                                            磁盘使用率
-                                        </span>
-                                        <span class="usage-item-value">45% (450 / 1000 GiB)</span>
-                                    </div>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill orange" style="width: 45%;"></div>
-                                    </div>
-                                </div>
+                <!-- 右侧 Cluster Status -->
+                <div class="ks-stats-card ks-cluster-status">
+                    <h3>Cluster Status</h3>
+                    <div class="ks-cluster-content">
+                        <!-- Node Online Status -->
+                        <div class="ks-node-status">
+                            <div class="ks-node-ring">
+                                <svg viewBox="0 0 36 36">
+                                    <circle class="ks-node-ring-bg" cx="18" cy="18" r="15.9"/>
+                                    <circle class="ks-node-ring-fill" cx="18" cy="18" r="15.9" stroke-dasharray="100" stroke-dashoffset="0"/>
+                                </svg>
+                                <div class="ks-node-ring-text">5/5</div>
                             </div>
+                            <div class="ks-node-title">Node Online Status</div>
+                            <div class="ks-node-info">Online Nodes: 5</div>
+                            <div class="ks-node-info">All Nodes: 5</div>
                         </div>
 
-                        <!-- Node Status -->
-                        <div class="card">
-                            <div class="card-header">
-                                <span class="card-title">节点状态</span>
-                                <a href="nodes.html" class="btn btn-text">查看全部</a>
-                            </div>
-                            <div class="card-body">
-                                <div class="node-grid">
-                                    <div class="node-card">
-                                        <div class="node-card-header">
-                                            <span class="node-card-name">master-01</span>
-                                            <span class="node-card-role">Master</span>
-                                        </div>
-                                        <div class="node-card-stats">
-                                            <div class="node-stat">
-                                                <div class="node-stat-value">65%</div>
-                                                <div class="node-stat-label">CPU</div>
-                                            </div>
-                                            <div class="node-stat">
-                                                <div class="node-stat-value">72%</div>
-                                                <div class="node-stat-label">内存</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="node-card">
-                                        <div class="node-card-header">
-                                            <span class="node-card-name">worker-01</span>
-                                            <span class="node-card-role">Worker</span>
-                                        </div>
-                                        <div class="node-card-stats">
-                                            <div class="node-stat">
-                                                <div class="node-stat-value">58%</div>
-                                                <div class="node-stat-label">CPU</div>
-                                            </div>
-                                            <div class="node-stat">
-                                                <div class="node-stat-value">81%</div>
-                                                <div class="node-stat-label">内存</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="node-card">
-                                        <div class="node-card-header">
-                                            <span class="node-card-name">worker-02</span>
-                                            <span class="node-card-role">Worker</span>
-                                        </div>
-                                        <div class="node-card-stats">
-                                            <div class="node-stat">
-                                                <div class="node-stat-value">42%</div>
-                                                <div class="node-stat-label">CPU</div>
-                                            </div>
-                                            <div class="node-stat">
-                                                <div class="node-stat-value">65%</div>
-                                                <div class="node-stat-label">内存</div>
-                                            </div>
-                                        </div>
-                                    </div>
+                        <!-- Components Grid -->
+                        <div class="ks-components-grid">
+                            <div class="ks-component-item">
+                                <div class="ks-component-name">
+                                    <svg viewBox="0 0 24 24" fill="#55bc8a"><path d="M12 2L4 6v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V6l-8-4z"/></svg>
+                                    KUBESPHERE
                                 </div>
+                                <div class="ks-component-count">9<span>/9</span></div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Right Column -->
-                    <div>
-                        <!-- Recent Events -->
-                        <div class="card" style="margin-bottom: var(--spacing-xxl);">
-                            <div class="card-header">
-                                <span class="card-title">最近事件</span>
-                                <a href="events.html" class="btn btn-text">查看全部</a>
-                            </div>
-                            <div class="card-body">
-                                <ul class="event-list">
-                                    <li class="event-item">
-                                        <span class="event-dot normal"></span>
-                                        <div class="event-content">
-                                            <div class="event-message">Pod nginx-deployment-abc123 启动成功</div>
-                                            <div class="event-meta">default · 5 分钟前</div>
-                                        </div>
-                                    </li>
-                                    <li class="event-item">
-                                        <span class="event-dot warning"></span>
-                                        <div class="event-content">
-                                            <div class="event-message">Node worker-03 内存使用率超过 90%</div>
-                                            <div class="event-meta">kube-system · 12 分钟前</div>
-                                        </div>
-                                    </li>
-                                    <li class="event-item">
-                                        <span class="event-dot normal"></span>
-                                        <div class="event-content">
-                                            <div class="event-message">Deployment api-gateway 扩容至 3 副本</div>
-                                            <div class="event-meta">production · 28 分钟前</div>
-                                        </div>
-                                    </li>
-                                    <li class="event-item">
-                                        <span class="event-dot normal"></span>
-                                        <div class="event-content">
-                                            <div class="event-message">ConfigMap app-config 更新成功</div>
-                                            <div class="event-meta">default · 1 小时前</div>
-                                        </div>
-                                    </li>
-                                    <li class="event-item">
-                                        <span class="event-dot warning"></span>
-                                        <div class="event-content">
-                                            <div class="event-message">PVC data-volume 空间使用率达到 85%</div>
-                                            <div class="event-meta">storage · 2 小时前</div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <!-- Recent Workloads -->
-                        <div class="resource-card">
-                            <div class="resource-card-header">
-                                <span class="resource-card-title">最近访问的工作负载</span>
-                                <a href="workloads.html" class="resource-card-link">查看全部</a>
-                            </div>
-                            <div class="resource-item">
-                                <div class="resource-item-left">
-                                    <div class="resource-item-icon">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
-                                    </div>
-                                    <div>
-                                        <div class="resource-item-name">nginx-deployment</div>
-                                        <div class="resource-item-meta">default · 3/3 副本</div>
-                                    </div>
+                            <div class="ks-component-item">
+                                <div class="ks-component-name">
+                                    <svg viewBox="0 0 24 24" fill="#326ce5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="#fff"/></svg>
+                                    kubernetes
                                 </div>
-                                <span class="status-badge running">运行中</span>
+                                <div class="ks-component-count">5<span>/5</span></div>
                             </div>
-                            <div class="resource-item">
-                                <div class="resource-item-left">
-                                    <div class="resource-item-icon">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg>
-                                    </div>
-                                    <div>
-                                        <div class="resource-item-name">api-gateway</div>
-                                        <div class="resource-item-meta">production · 3/3 副本</div>
-                                    </div>
+                            <div class="ks-component-item">
+                                <div class="ks-component-name">
+                                    <svg viewBox="0 0 24 24" fill="#1e88e5"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                                    OpenPitrix
                                 </div>
-                                <span class="status-badge running">运行中</span>
+                                <div class="ks-component-count">13<span>/13</span></div>
                             </div>
-                            <div class="resource-item">
-                                <div class="resource-item-left">
-                                    <div class="resource-item-icon" style="background: rgba(126, 87, 194, 0.15); color: #7e57c2;">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
-                                    </div>
-                                    <div>
-                                        <div class="resource-item-name">mysql-cluster</div>
-                                        <div class="resource-item-meta">database · 3/3 副本</div>
-                                    </div>
+                            <div class="ks-component-item">
+                                <div class="ks-component-name">
+                                    <svg viewBox="0 0 24 24" fill="#466bb0"><polygon points="12,2 22,20 2,20"/></svg>
+                                    Istio
                                 </div>
-                                <span class="status-badge running">运行中</span>
+                                <div class="ks-component-count">12<span>/12</span></div>
                             </div>
-                            <div class="resource-item">
-                                <div class="resource-item-left">
-                                    <div class="resource-item-icon" style="background: rgba(236, 137, 56, 0.15); color: #ec8938;">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/></svg>
-                                    </div>
-                                    <div>
-                                        <div class="resource-item-name">logging-agent</div>
-                                        <div class="resource-item-meta">monitoring · 5/5 节点</div>
-                                    </div>
+                            <div class="ks-component-item">
+                                <div class="ks-component-name">
+                                    <svg viewBox="0 0 24 24" fill="#e6522c"><circle cx="12" cy="12" r="10"/></svg>
+                                    Monitoring
                                 </div>
-                                <span class="status-badge running">运行中</span>
+                                <div class="ks-component-count">6<span>/6</span></div>
+                            </div>
+                            <div class="ks-component-item">
+                                <div class="ks-component-name">
+                                    <svg viewBox="0 0 24 24" fill="#13bfb1"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+                                    Logging
+                                </div>
+                                <div class="ks-component-count">3<span>/3</span></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
 
-    <script src="icons.js"></script>
-    <script>
-        function toggleSubmenu(element) {
-            const navItem = element.closest('.nav-item');
-            navItem.classList.toggle('expanded');
-        }
-    </script>
+            <!-- 资源使用情况 -->
+            <div class="ks-resource-usage">
+                <h3>Resources Usage</h3>
+                <div class="ks-resource-grid">
+                    <div class="ks-resource-item">
+                        <div class="ks-resource-ring">
+                            <svg viewBox="0 0 36 36">
+                                <circle class="ks-resource-ring-bg" cx="18" cy="18" r="15.9"/>
+                                <circle class="ks-resource-ring-fill" cx="18" cy="18" r="15.9" stroke-dasharray="100" stroke-dashoffset="91" style="stroke: #329dce;"/>
+                            </svg>
+                        </div>
+                        <div class="ks-resource-label">CPU core</div>
+                        <div class="ks-resource-value">1.05<span>/12</span></div>
+                    </div>
+                    <div class="ks-resource-item">
+                        <div class="ks-resource-ring">
+                            <svg viewBox="0 0 36 36">
+                                <circle class="ks-resource-ring-bg" cx="18" cy="18" r="15.9"/>
+                                <circle class="ks-resource-ring-fill" cx="18" cy="18" r="15.9" stroke-dasharray="100" stroke-dashoffset="48" style="stroke: #329dce;"/>
+                            </svg>
+                        </div>
+                        <div class="ks-resource-label">Memory GiB</div>
+                        <div class="ks-resource-value">12.29<span>/23.39</span></div>
+                    </div>
+                    <div class="ks-resource-item">
+                        <div class="ks-resource-ring">
+                            <svg viewBox="0 0 36 36">
+                                <circle class="ks-resource-ring-bg" cx="18" cy="18" r="15.9"/>
+                                <circle class="ks-resource-ring-fill" cx="18" cy="18" r="15.9" stroke-dasharray="100" stroke-dashoffset="74" style="stroke: #329dce;"/>
+                            </svg>
+                        </div>
+                        <div class="ks-resource-label">Local Storage GB</div>
+                        <div class="ks-resource-value">27.79<span>/105.55</span></div>
+                    </div>
+                    <div class="ks-resource-item">
+                        <div class="ks-resource-ring">
+                            <svg viewBox="0 0 36 36">
+                                <circle class="ks-resource-ring-bg" cx="18" cy="18" r="15.9"/>
+                                <circle class="ks-resource-ring-fill" cx="18" cy="18" r="15.9" stroke-dasharray="100" stroke-dashoffset="36" style="stroke: #329dce;"/>
+                            </svg>
+                        </div>
+                        <div class="ks-resource-label">Pod</div>
+                        <div class="ks-resource-value">70<span>/110</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Node Usage Top5 表格 -->
+            <div class="ks-table-section">
+                <div class="ks-table-tabs">
+                    <div class="ks-table-tab active">Node Usage Top5</div>
+                    <div class="ks-table-tab">Workspace Usage Top5</div>
+                </div>
+                <div class="ks-table-toolbar">
+                    <div></div>
+                    <div class="ks-table-sort">
+                        <select>
+                            <option>Sort By CPU</option>
+                            <option>Sort By Memory</option>
+                            <option>Sort By Storage</option>
+                            <option>Sort By Pod</option>
+                        </select>
+                    </div>
+                </div>
+                <table class="ks-table">
+                    <thead>
+                        <tr>
+                            <th>Nodes</th>
+                            <th>CPU</th>
+                            <th>Load Average</th>
+                            <th>Memory</th>
+                            <th>Local Storage</th>
+                            <th>inode Utilization</th>
+                            <th>Pods</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="ks-table-node">
+                                    <div class="ks-table-node-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="14" x2="20" y2="14"/></svg>
+                                    </div>
+                                    <div>
+                                        <div class="ks-table-node-name">ks-allinone <span class="ks-tag">Master</span></div>
+                                        <div class="ks-table-node-ip">192.168.101.20</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="ks-table-bar">
+                                    <div class="ks-table-bar-fill" style="width: 9%;"></div>
+                                    <div class="ks-table-bar-text">9%</div>
+                                </div>
+                                <div style="font-size: 12px; color: #79879c; margin-top: 4px;">1.05 / 12 core</div>
+                            </td>
+                            <td>0.10</td>
+                            <td>53%<br><span style="font-size: 12px; color: #79879c;">12.29 / 23.39 GiB</span></td>
+                            <td>27%<br><span style="font-size: 12px; color: #79879c;">27.79 / 105.55 GB</span></td>
+                            <td>7%<br><span style="font-size: 12px; color: #79879c;">426803 / 6553600</span></td>
+                            <td>64%<br><span style="font-size: 12px; color: #79879c;">70 / 110</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="ks-table-node">
+                                    <div class="ks-table-node-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="14" x2="20" y2="14"/></svg>
+                                    </div>
+                                    <div>
+                                        <div class="ks-table-node-name">worker-01</div>
+                                        <div class="ks-table-node-ip">192.168.101.21</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="ks-table-bar">
+                                    <div class="ks-table-bar-fill" style="width: 15%;"></div>
+                                    <div class="ks-table-bar-text">15%</div>
+                                </div>
+                                <div style="font-size: 12px; color: #79879c; margin-top: 4px;">1.80 / 12 core</div>
+                            </td>
+                            <td>0.23</td>
+                            <td>61%<br><span style="font-size: 12px; color: #79879c;">14.28 / 23.39 GiB</span></td>
+                            <td>32%<br><span style="font-size: 12px; color: #79879c;">33.77 / 105.55 GB</span></td>
+                            <td>9%<br><span style="font-size: 12px; color: #79879c;">589210 / 6553600</span></td>
+                            <td>72%<br><span style="font-size: 12px; color: #79879c;">79 / 110</span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="ks-table-node">
+                                    <div class="ks-table-node-icon">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="14" x2="20" y2="14"/></svg>
+                                    </div>
+                                    <div>
+                                        <div class="ks-table-node-name">worker-02</div>
+                                        <div class="ks-table-node-ip">192.168.101.22</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="ks-table-bar">
+                                    <div class="ks-table-bar-fill" style="width: 12%;"></div>
+                                    <div class="ks-table-bar-text">12%</div>
+                                </div>
+                                <div style="font-size: 12px; color: #79879c; margin-top: 4px;">1.44 / 12 core</div>
+                            </td>
+                            <td>0.18</td>
+                            <td>55%<br><span style="font-size: 12px; color: #79879c;">12.87 / 23.39 GiB</span></td>
+                            <td>28%<br><span style="font-size: 12px; color: #79879c;">29.55 / 105.55 GB</span></td>
+                            <td>8%<br><span style="font-size: 12px; color: #79879c;">524288 / 6553600</span></td>
+                            <td>58%<br><span style="font-size: 12px; color: #79879c;">64 / 110</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="ks-table-footer">
+                    <a href="nodes.html">View All</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 帮助按钮 -->
+    <div class="ks-help-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    </div>
 </body>
 </html>
