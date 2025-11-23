@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KubeSphere - 工作台</title>
+    <link rel="stylesheet" href="base.css">
+</head>
+<body>
+    <div class="ks-layout ks-layout-with-sidebar">
+        <!-- 左侧边栏 -->
+        <aside class="ks-sidebar">
+            <div class="ks-sidebar-header">
+                <a href="index.html" class="ks-sidebar-logo">
+                    <div class="ks-sidebar-logo-icon">KS</div>
+                    <span class="ks-sidebar-logo-text">KubeSphere</span>
+                </a>
+            </div>
+            <nav class="ks-sidebar-nav">
+                <div class="ks-sidebar-section">
+                    <a href="index.html" class="ks-sidebar-item active">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        <span class="ks-sidebar-item-text">工作台</span>
+                    </a>
+                </div>
+
+                <div class="ks-sidebar-section">
+                    <div class="ks-sidebar-section-title">集群管理</div>
+                    <a href="cluster.html" class="ks-sidebar-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                        <span class="ks-sidebar-item-text">集群概览</span>
+                    </a>
+                    <a href="nodes.html" class="ks-sidebar-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+                        <span class="ks-sidebar-item-text">节点管理</span>
+                    </a>
+                </div>
+
+                <div class="ks-sidebar-section">
+                    <div class="ks-sidebar-section-title">应用负载</div>
+                    <div class="ks-sidebar-item expanded" onclick="toggleSubmenu(this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                        <span class="ks-sidebar-item-text">工作负载</span>
+                        <svg class="ks-sidebar-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    </div>
+                    <div class="ks-sidebar-submenu open">
+                        <a href="workloads.html" class="ks-sidebar-item">Deployments</a>
+                        <a href="statefulsets.html" class="ks-sidebar-item">StatefulSets</a>
+                        <a href="daemonsets.html" class="ks-sidebar-item">DaemonSets</a>
+                        <a href="jobs.html" class="ks-sidebar-item">Jobs</a>
+                        <a href="cronjobs.html" class="ks-sidebar-item">CronJobs</a>
+                        <a href="pods.html" class="ks-sidebar-item">Pods</a>
+                    </div>
+                    <div class="ks-sidebar-item" onclick="toggleSubmenu(this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                        <span class="ks-sidebar-item-text">服务与网络</span>
+                        <svg class="ks-sidebar-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    </div>
+                    <div class="ks-sidebar-submenu">
+                        <a href="services.html" class="ks-sidebar-item">Services</a>
+                        <a href="ingresses.html" class="ks-sidebar-item">Ingresses</a>
+                        <a href="networkpolicies.html" class="ks-sidebar-item">网络策略</a>
+                    </div>
+                </div>
+
+                <div class="ks-sidebar-section">
+                    <div class="ks-sidebar-section-title">存储管理</div>
+                    <a href="storage.html" class="ks-sidebar-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                        <span class="ks-sidebar-item-text">存储卷 (PVC)</span>
+                    </a>
+                    <a href="storageclasses.html" class="ks-sidebar-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                        <span class="ks-sidebar-item-text">存储类</span>
+                    </a>
+                </div>
+
+                <div class="ks-sidebar-section">
+                    <div class="ks-sidebar-section-title">配置中心</div>
+                    <a href="configmaps.html" class="ks-sidebar-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                        <span class="ks-sidebar-item-text">ConfigMaps</span>
+                    </a>
+                    <a href="secrets.html" class="ks-sidebar-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <span class="ks-sidebar-item-text">Secrets</span>
+                    </a>
+                </div>
+
+                <div class="ks-sidebar-section">
+                    <div class="ks-sidebar-section-title">监控告警</div>
+                    <a href="monitoring.html" class="ks-sidebar-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        <span class="ks-sidebar-item-text">监控中心</span>
+                    </a>
+                    <a href="alerts.html" class="ks-sidebar-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        <span class="ks-sidebar-item-text">告警管理</span>
+                    </a>
+                    <a href="events.html" class="ks-sidebar-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        <span class="ks-sidebar-item-text">事件日志</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="ks-main ks-main-with-sidebar">
+            <!-- 顶部导航 -->
+            <header class="ks-header">
+                <div class="ks-breadcrumb">
+                    <span class="ks-breadcrumb-current">工作台</span>
+                </div>
+                <div class="ks-header-right">
+                    <div class="ks-search">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <input type="text" placeholder="搜索资源...">
+                    </div>
+                    <div class="ks-header-icon" title="通知">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    </div>
+                    <div class="ks-header-icon" title="设置">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </div>
+                    <div class="ks-user">
+                        <div class="ks-user-avatar">A</div>
+                        <span class="ks-user-name">admin</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                </div>
+            </header>
+
+            <!-- 内容区 -->
+            <div class="ks-content">
+                <!-- 欢迎卡片 -->
+                <div class="ks-card ks-mb-lg" style="background: linear-gradient(135deg, #242e42 0%, #36435c 100%); color: #fff;">
+                    <div class="ks-card-body">
+                        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+                            <div class="ks-user-avatar" style="width: 56px; height: 56px; font-size: 20px;">A</div>
+                            <div>
+                                <h2 style="font-size: 20px; font-weight: 500; margin-bottom: 4px;">Hello, admin</h2>
+                                <div style="font-size: 12px; opacity: 0.8;">
+                                    <span style="margin-right: 24px;">超级管理员</span>
+                                    <span>上次登录：2024-01-15 10:30:00</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ks-grid-4" style="margin: 0;">
+                            <div style="text-align: center; padding: 16px; background: rgba(255,255,255,0.1); border-radius: 4px; cursor: pointer;" onclick="location.href='cluster.html'">
+                                <div style="font-size: 28px; font-weight: 600; margin-bottom: 4px;">5</div>
+                                <div style="font-size: 12px; opacity: 0.7;">节点</div>
+                            </div>
+                            <div style="text-align: center; padding: 16px; background: rgba(255,255,255,0.1); border-radius: 4px; cursor: pointer;" onclick="location.href='workloads.html'">
+                                <div style="font-size: 28px; font-weight: 600; margin-bottom: 4px;">42</div>
+                                <div style="font-size: 12px; opacity: 0.7;">Deployments</div>
+                            </div>
+                            <div style="text-align: center; padding: 16px; background: rgba(255,255,255,0.1); border-radius: 4px; cursor: pointer;" onclick="location.href='pods.html'">
+                                <div style="font-size: 28px; font-weight: 600; margin-bottom: 4px;">156</div>
+                                <div style="font-size: 12px; opacity: 0.7;">运行中 Pods</div>
+                            </div>
+                            <div style="text-align: center; padding: 16px; background: rgba(255,255,255,0.1); border-radius: 4px; cursor: pointer;" onclick="location.href='services.html'">
+                                <div style="font-size: 28px; font-weight: 600; margin-bottom: 4px;">68</div>
+                                <div style="font-size: 12px; opacity: 0.7;">Services</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 资源使用统计 -->
+                <div class="ks-stats-grid ks-mb-lg">
+                    <div class="ks-stat-card">
+                        <div class="ks-stat-header">
+                            <span class="ks-stat-title">CPU 使用率</span>
+                            <div class="ks-stat-icon blue">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg>
+                            </div>
+                        </div>
+                        <div class="ks-stat-value">45%</div>
+                        <div class="ks-stat-desc">18 / 40 Cores</div>
+                        <div class="ks-progress" style="margin-top: 8px;">
+                            <div class="ks-progress-fill blue" style="width: 45%;"></div>
+                        </div>
+                    </div>
+                    <div class="ks-stat-card">
+                        <div class="ks-stat-header">
+                            <span class="ks-stat-title">内存使用率</span>
+                            <div class="ks-stat-icon green">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                            </div>
+                        </div>
+                        <div class="ks-stat-value">62%</div>
+                        <div class="ks-stat-desc">49.6 / 80 GiB</div>
+                        <div class="ks-progress" style="margin-top: 8px;">
+                            <div class="ks-progress-fill green" style="width: 62%;"></div>
+                        </div>
+                    </div>
+                    <div class="ks-stat-card">
+                        <div class="ks-stat-header">
+                            <span class="ks-stat-title">存储使用率</span>
+                            <div class="ks-stat-icon orange">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                            </div>
+                        </div>
+                        <div class="ks-stat-value">38%</div>
+                        <div class="ks-stat-desc">380 / 1000 GB</div>
+                        <div class="ks-progress" style="margin-top: 8px;">
+                            <div class="ks-progress-fill orange" style="width: 38%;"></div>
+                        </div>
+                    </div>
+                    <div class="ks-stat-card">
+                        <div class="ks-stat-header">
+                            <span class="ks-stat-title">Pod 配额</span>
+                            <div class="ks-stat-icon green">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                            </div>
+                        </div>
+                        <div class="ks-stat-value">31%</div>
+                        <div class="ks-stat-desc">156 / 500</div>
+                        <div class="ks-progress" style="margin-top: 8px;">
+                            <div class="ks-progress-fill green" style="width: 31%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 双栏布局 -->
+                <div class="ks-grid-2 ks-mb-lg">
+                    <!-- 集群状态 -->
+                    <div class="ks-card">
+                        <div class="ks-card-header">
+                            <h3 class="ks-card-title">集群状态</h3>
+                            <a href="cluster.html" class="ks-btn ks-btn-text">查看详情</a>
+                        </div>
+                        <div class="ks-card-body">
+                            <ul class="ks-info-list">
+                                <li class="ks-info-item">
+                                    <span class="ks-info-label">集群名称</span>
+                                    <span class="ks-info-value">production-cluster</span>
+                                </li>
+                                <li class="ks-info-item">
+                                    <span class="ks-info-label">Kubernetes 版本</span>
+                                    <span class="ks-info-value">v1.28.3</span>
+                                </li>
+                                <li class="ks-info-item">
+                                    <span class="ks-info-label">节点状态</span>
+                                    <span class="ks-status ks-status-running"><span class="ks-status-dot"></span>5/5 Ready</span>
+                                </li>
+                                <li class="ks-info-item">
+                                    <span class="ks-info-label">运行时间</span>
+                                    <span class="ks-info-value">45 天 12 小时</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 组件状态 -->
+                    <div class="ks-card">
+                        <div class="ks-card-header">
+                            <h3 class="ks-card-title">组件状态</h3>
+                        </div>
+                        <div class="ks-card-body">
+                            <ul class="ks-info-list">
+                                <li class="ks-info-item">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--ks-primary)" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51"/></svg>
+                                        <span>kube-apiserver</span>
+                                    </div>
+                                    <span class="ks-status ks-status-healthy"><span class="ks-status-dot"></span>健康</span>
+                                </li>
+                                <li class="ks-info-item">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--ks-primary)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+                                        <span>kube-controller-manager</span>
+                                    </div>
+                                    <span class="ks-status ks-status-healthy"><span class="ks-status-dot"></span>健康</span>
+                                </li>
+                                <li class="ks-info-item">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--ks-primary)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                        <span>kube-scheduler</span>
+                                    </div>
+                                    <span class="ks-status ks-status-healthy"><span class="ks-status-dot"></span>健康</span>
+                                </li>
+                                <li class="ks-info-item">
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--ks-primary)" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+                                        <span>etcd</span>
+                                    </div>
+                                    <span class="ks-status ks-status-healthy"><span class="ks-status-dot"></span>健康</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 节点使用排行 -->
+                <div class="ks-card">
+                    <div class="ks-card-header">
+                        <h3 class="ks-card-title">节点资源使用 Top5</h3>
+                        <div style="display: flex; gap: 8px;">
+                            <select class="ks-select">
+                                <option>按 CPU 排序</option>
+                                <option>按内存排序</option>
+                                <option>按存储排序</option>
+                            </select>
+                        </div>
+                    </div>
+                    <table class="ks-table">
+                        <thead>
+                            <tr>
+                                <th>节点</th>
+                                <th>CPU</th>
+                                <th>内存</th>
+                                <th>存储</th>
+                                <th>Pods</th>
+                                <th>状态</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr onclick="location.href='nodes.html'">
+                                <td>
+                                    <div class="ks-table-cell-main">
+                                        <div class="ks-table-cell-icon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg>
+                                        </div>
+                                        <div>
+                                            <div class="ks-table-cell-name">master-01</div>
+                                            <div class="ks-table-cell-desc">192.168.1.10</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div class="ks-progress" style="width: 80px;">
+                                            <div class="ks-progress-fill green" style="width: 35%;"></div>
+                                        </div>
+                                        <span>35%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div class="ks-progress" style="width: 80px;">
+                                            <div class="ks-progress-fill orange" style="width: 58%;"></div>
+                                        </div>
+                                        <span>58%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div class="ks-progress" style="width: 80px;">
+                                            <div class="ks-progress-fill green" style="width: 42%;"></div>
+                                        </div>
+                                        <span>42%</span>
+                                    </div>
+                                </td>
+                                <td>28/110</td>
+                                <td><span class="ks-status ks-status-ready"><span class="ks-status-dot"></span>Ready</span></td>
+                            </tr>
+                            <tr onclick="location.href='nodes.html'">
+                                <td>
+                                    <div class="ks-table-cell-main">
+                                        <div class="ks-table-cell-icon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg>
+                                        </div>
+                                        <div>
+                                            <div class="ks-table-cell-name">worker-01</div>
+                                            <div class="ks-table-cell-desc">192.168.1.11</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div class="ks-progress" style="width: 80px;">
+                                            <div class="ks-progress-fill orange" style="width: 67%;"></div>
+                                        </div>
+                                        <span>67%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div class="ks-progress" style="width: 80px;">
+                                            <div class="ks-progress-fill red" style="width: 82%;"></div>
+                                        </div>
+                                        <span>82%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div class="ks-progress" style="width: 80px;">
+                                            <div class="ks-progress-fill orange" style="width: 55%;"></div>
+                                        </div>
+                                        <span>55%</span>
+                                    </div>
+                                </td>
+                                <td>45/110</td>
+                                <td><span class="ks-status ks-status-ready"><span class="ks-status-dot"></span>Ready</span></td>
+                            </tr>
+                            <tr onclick="location.href='nodes.html'">
+                                <td>
+                                    <div class="ks-table-cell-main">
+                                        <div class="ks-table-cell-icon">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg>
+                                        </div>
+                                        <div>
+                                            <div class="ks-table-cell-name">worker-02</div>
+                                            <div class="ks-table-cell-desc">192.168.1.12</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div class="ks-progress" style="width: 80px;">
+                                            <div class="ks-progress-fill orange" style="width: 52%;"></div>
+                                        </div>
+                                        <span>52%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div class="ks-progress" style="width: 80px;">
+                                            <div class="ks-progress-fill orange" style="width: 71%;"></div>
+                                        </div>
+                                        <span>71%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <div class="ks-progress" style="width: 80px;">
+                                            <div class="ks-progress-fill green" style="width: 38%;"></div>
+                                        </div>
+                                        <span>38%</span>
+                                    </div>
+                                </td>
+                                <td>38/110</td>
+                                <td><span class="ks-status ks-status-ready"><span class="ks-status-dot"></span>Ready</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="ks-card-footer">
+                        <a href="nodes.html">查看所有节点</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 帮助按钮 -->
+    <div class="ks-help-float" title="帮助">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    </div>
+
+    <script>
+        function toggleSubmenu(element) {
+            element.classList.toggle('expanded');
+            const submenu = element.nextElementSibling;
+            if (submenu && submenu.classList.contains('ks-sidebar-submenu')) {
+                submenu.classList.toggle('open');
+            }
+        }
+    </script>
+</body>
+</html>

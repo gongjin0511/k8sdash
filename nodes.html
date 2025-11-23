@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KubeSphere - 节点管理</title>
+    <link rel="stylesheet" href="base.css">
+</head>
+<body>
+    <div class="ks-layout ks-layout-with-sidebar" id="app"></div>
+    <script src="shared.js"></script>
+    <script>
+        document.getElementById('app').innerHTML = `
+            ${getSidebarHTML('nodes')}
+            <main class="ks-main ks-main-with-sidebar">
+                ${getHeaderHTML([{text: '工作台', href: 'index.html'}, {text: '节点管理'}])}
+                <div class="ks-content">
+                    <div class="ks-page-header">
+                        <h1 class="ks-page-title">节点管理</h1>
+                        <div style="display: flex; gap: 12px;">
+                            <input type="text" class="ks-input" placeholder="搜索节点..." style="width: 200px;">
+                            <select class="ks-select"><option value="">全部角色</option><option>Master</option><option>Worker</option></select>
+                        </div>
+                    </div>
+
+                    <div class="ks-node-grid">
+                        <!-- Node 1 -->
+                        <div class="ks-node-card">
+                            <div class="ks-node-header">
+                                <div class="ks-node-info">
+                                    <div class="ks-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg></div>
+                                    <div><div class="ks-node-name">master-01</div><div class="ks-node-ip">192.168.1.10</div></div>
+                                </div>
+                                <div><span class="ks-node-role master">Master</span></div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;"><span class="ks-status ks-status-ready"><span class="ks-status-dot"></span>Ready</span><span style="color: var(--text-secondary); font-size: 11px;">运行 45 天</span></div>
+                            <div class="ks-node-metrics">
+                                <div class="ks-node-metric"><div class="ks-node-metric-label">CPU</div><div class="ks-node-metric-value">35%</div><div class="ks-progress"><div class="ks-progress-fill green" style="width: 35%;"></div></div></div>
+                                <div class="ks-node-metric"><div class="ks-node-metric-label">内存</div><div class="ks-node-metric-value">58%</div><div class="ks-progress"><div class="ks-progress-fill orange" style="width: 58%;"></div></div></div>
+                                <div class="ks-node-metric"><div class="ks-node-metric-label">Pods</div><div class="ks-node-metric-value">28/110</div><div class="ks-progress"><div class="ks-progress-fill blue" style="width: 25%;"></div></div></div>
+                            </div>
+                        </div>
+
+                        <!-- Node 2 -->
+                        <div class="ks-node-card">
+                            <div class="ks-node-header">
+                                <div class="ks-node-info">
+                                    <div class="ks-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg></div>
+                                    <div><div class="ks-node-name">worker-01</div><div class="ks-node-ip">192.168.1.11</div></div>
+                                </div>
+                                <div><span class="ks-node-role worker">Worker</span></div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;"><span class="ks-status ks-status-ready"><span class="ks-status-dot"></span>Ready</span><span style="color: var(--text-secondary); font-size: 11px;">运行 45 天</span></div>
+                            <div class="ks-node-metrics">
+                                <div class="ks-node-metric"><div class="ks-node-metric-label">CPU</div><div class="ks-node-metric-value">67%</div><div class="ks-progress"><div class="ks-progress-fill orange" style="width: 67%;"></div></div></div>
+                                <div class="ks-node-metric"><div class="ks-node-metric-label">内存</div><div class="ks-node-metric-value">82%</div><div class="ks-progress"><div class="ks-progress-fill red" style="width: 82%;"></div></div></div>
+                                <div class="ks-node-metric"><div class="ks-node-metric-label">Pods</div><div class="ks-node-metric-value">45/110</div><div class="ks-progress"><div class="ks-progress-fill blue" style="width: 41%;"></div></div></div>
+                            </div>
+                        </div>
+
+                        <!-- Node 3 -->
+                        <div class="ks-node-card">
+                            <div class="ks-node-header">
+                                <div class="ks-node-info">
+                                    <div class="ks-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg></div>
+                                    <div><div class="ks-node-name">worker-02</div><div class="ks-node-ip">192.168.1.12</div></div>
+                                </div>
+                                <div><span class="ks-node-role worker">Worker</span></div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;"><span class="ks-status ks-status-ready"><span class="ks-status-dot"></span>Ready</span><span style="color: var(--text-secondary); font-size: 11px;">运行 45 天</span></div>
+                            <div class="ks-node-metrics">
+                                <div class="ks-node-metric"><div class="ks-node-metric-label">CPU</div><div class="ks-node-metric-value">52%</div><div class="ks-progress"><div class="ks-progress-fill orange" style="width: 52%;"></div></div></div>
+                                <div class="ks-node-metric"><div class="ks-node-metric-label">内存</div><div class="ks-node-metric-value">71%</div><div class="ks-progress"><div class="ks-progress-fill orange" style="width: 71%;"></div></div></div>
+                                <div class="ks-node-metric"><div class="ks-node-metric-label">Pods</div><div class="ks-node-metric-value">38/110</div><div class="ks-progress"><div class="ks-progress-fill blue" style="width: 35%;"></div></div></div>
+                            </div>
+                        </div>
+
+                        <!-- Node 4 -->
+                        <div class="ks-node-card">
+                            <div class="ks-node-header">
+                                <div class="ks-node-info">
+                                    <div class="ks-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg></div>
+                                    <div><div class="ks-node-name">worker-03</div><div class="ks-node-ip">192.168.1.13</div></div>
+                                </div>
+                                <div><span class="ks-node-role worker">Worker</span></div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;"><span class="ks-status ks-status-ready"><span class="ks-status-dot"></span>Ready</span><span style="color: var(--text-secondary); font-size: 11px;">运行 30 天</span></div>
+                            <div class="ks-node-metrics">
+                                <div class="ks-node-metric"><div class="ks-node-metric-label">CPU</div><div class="ks-node-metric-value">28%</div><div class="ks-progress"><div class="ks-progress-fill green" style="width: 28%;"></div></div></div>
+                                <div class="ks-node-metric"><div class="ks-node-metric-label">内存</div><div class="ks-node-metric-value">45%</div><div class="ks-progress"><div class="ks-progress-fill green" style="width: 45%;"></div></div></div>
+                                <div class="ks-node-metric"><div class="ks-node-metric-label">Pods</div><div class="ks-node-metric-value">25/110</div><div class="ks-progress"><div class="ks-progress-fill blue" style="width: 23%;"></div></div></div>
+                            </div>
+                        </div>
+
+                        <!-- Node 5 -->
+                        <div class="ks-node-card">
+                            <div class="ks-node-header">
+                                <div class="ks-node-info">
+                                    <div class="ks-node-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg></div>
+                                    <div><div class="ks-node-name">worker-04</div><div class="ks-node-ip">192.168.1.14</div></div>
+                                </div>
+                                <div><span class="ks-node-role worker">Worker</span></div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;"><span class="ks-status ks-status-ready"><span class="ks-status-dot"></span>Ready</span><span style="color: var(--text-secondary); font-size: 11px;">运行 15 天</span></div>
+                            <div class="ks-node-metrics">
+                                <div class="ks-node-metric"><div class="ks-node-metric-label">CPU</div><div class="ks-node-metric-value">41%</div><div class="ks-progress"><div class="ks-progress-fill green" style="width: 41%;"></div></div></div>
+                                <div class="ks-node-metric"><div class="ks-node-metric-label">内存</div><div class="ks-node-metric-value">55%</div><div class="ks-progress"><div class="ks-progress-fill orange" style="width: 55%;"></div></div></div>
+                                <div class="ks-node-metric"><div class="ks-node-metric-label">Pods</div><div class="ks-node-metric-value">20/110</div><div class="ks-progress"><div class="ks-progress-fill blue" style="width: 18%;"></div></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        `;
+    </script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KubeSphere - 集群概览</title>
+    <link rel="stylesheet" href="base.css">
+</head>
+<body>
+    <div class="ks-layout ks-layout-with-sidebar" id="app"></div>
+    <script src="shared.js"></script>
+    <script>
+        document.getElementById('app').innerHTML = `
+            ${getSidebarHTML('cluster')}
+            <main class="ks-main ks-main-with-sidebar">
+                ${getHeaderHTML([{text: '工作台', href: 'index.html'}, {text: '集群概览'}])}
+                <div class="ks-content">
+                    <!-- 集群信息卡片 -->
+                    <div class="ks-card ks-mb-lg" style="background: linear-gradient(135deg, #242e42 0%, #36435c 100%); color: #fff;">
+                        <div class="ks-card-body">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+                                <div style="display: flex; align-items: center; gap: 16px;">
+                                    <div style="width: 56px; height: 56px; background: rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 28px;">☸️</div>
+                                    <div>
+                                        <h2 style="font-size: 22px; font-weight: 500; margin-bottom: 4px;">production-cluster</h2>
+                                        <div style="font-size: 12px; opacity: 0.8;">Kubernetes v1.28.3</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(85, 188, 138, 0.2); border-radius: 20px;">
+                                    <span style="width: 8px; height: 8px; background: #55bc8a; border-radius: 50%;"></span>
+                                    <span style="font-size: 13px;">运行中</span>
+                                </div>
+                            </div>
+                            <div class="ks-grid-4" style="margin: 0;">
+                                <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                                    <div style="font-size: 32px; font-weight: 600; margin-bottom: 4px;">5</div>
+                                    <div style="font-size: 12px; opacity: 0.7;">节点总数</div>
+                                </div>
+                                <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                                    <div style="font-size: 32px; font-weight: 600; margin-bottom: 4px;">24</div>
+                                    <div style="font-size: 12px; opacity: 0.7;">命名空间</div>
+                                </div>
+                                <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                                    <div style="font-size: 32px; font-weight: 600; margin-bottom: 4px;">156</div>
+                                    <div style="font-size: 12px; opacity: 0.7;">运行中 Pods</div>
+                                </div>
+                                <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.05); border-radius: 8px;">
+                                    <div style="font-size: 32px; font-weight: 600; margin-bottom: 4px;">68</div>
+                                    <div style="font-size: 12px; opacity: 0.7;">Services</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 统计卡片 -->
+                    <div class="ks-stats-grid ks-mb-lg">
+                        <div class="ks-stat-card">
+                            <div class="ks-stat-header"><span class="ks-stat-title">CPU 总量</span><div class="ks-stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg></div></div>
+                            <div class="ks-stat-value">40 Cores</div>
+                            <div class="ks-stat-desc">已使用: 18 Cores (45%)</div>
+                        </div>
+                        <div class="ks-stat-card">
+                            <div class="ks-stat-header"><span class="ks-stat-title">内存总量</span><div class="ks-stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div></div>
+                            <div class="ks-stat-value">80 GiB</div>
+                            <div class="ks-stat-desc">已使用: 49.6 GiB (62%)</div>
+                        </div>
+                        <div class="ks-stat-card">
+                            <div class="ks-stat-header"><span class="ks-stat-title">存储总量</span><div class="ks-stat-icon orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div></div>
+                            <div class="ks-stat-value">1000 GB</div>
+                            <div class="ks-stat-desc">已使用: 380 GB (38%)</div>
+                        </div>
+                        <div class="ks-stat-card">
+                            <div class="ks-stat-header"><span class="ks-stat-title">Pod 配额</span><div class="ks-stat-icon green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div></div>
+                            <div class="ks-stat-value">500</div>
+                            <div class="ks-stat-desc">已使用: 156 (31%)</div>
+                        </div>
+                    </div>
+
+                    <!-- 双栏布局 -->
+                    <div class="ks-grid-2 ks-mb-lg">
+                        <div class="ks-card">
+                            <div class="ks-card-header"><h3 class="ks-card-title">集群信息</h3></div>
+                            <div class="ks-card-body">
+                                <ul class="ks-info-list">
+                                    <li class="ks-info-item"><span class="ks-info-label">集群名称</span><span class="ks-info-value">production-cluster</span></li>
+                                    <li class="ks-info-item"><span class="ks-info-label">Kubernetes 版本</span><span class="ks-info-value">v1.28.3</span></li>
+                                    <li class="ks-info-item"><span class="ks-info-label">API Server</span><span class="ks-info-value">https://192.168.1.10:6443</span></li>
+                                    <li class="ks-info-item"><span class="ks-info-label">容器运行时</span><span class="ks-info-value">containerd://1.6.20</span></li>
+                                    <li class="ks-info-item"><span class="ks-info-label">网络插件</span><span class="ks-info-value">Calico v3.26.1</span></li>
+                                    <li class="ks-info-item"><span class="ks-info-label">DNS 服务</span><span class="ks-info-value">CoreDNS v1.10.1</span></li>
+                                    <li class="ks-info-item"><span class="ks-info-label">创建时间</span><span class="ks-info-value">2024-01-01 00:00:00</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="ks-card">
+                            <div class="ks-card-header"><h3 class="ks-card-title">组件状态</h3></div>
+                            <div class="ks-card-body">
+                                <ul class="ks-info-list">
+                                    <li class="ks-info-item"><div style="display: flex; align-items: center; gap: 12px;"><div style="width: 32px; height: 32px; background: var(--bg-page); border-radius: 4px; display: flex; align-items: center; justify-content: center;">⚙️</div><div><div style="font-weight: 500;">kube-apiserver</div><div style="font-size: 11px; color: var(--text-secondary);">Kubernetes API 服务</div></div></div><span class="ks-status ks-status-healthy"><span class="ks-status-dot"></span>健康</span></li>
+                                    <li class="ks-info-item"><div style="display: flex; align-items: center; gap: 12px;"><div style="width: 32px; height: 32px; background: var(--bg-page); border-radius: 4px; display: flex; align-items: center; justify-content: center;">📋</div><div><div style="font-weight: 500;">kube-controller-manager</div><div style="font-size: 11px; color: var(--text-secondary);">控制器管理器</div></div></div><span class="ks-status ks-status-healthy"><span class="ks-status-dot"></span>健康</span></li>
+                                    <li class="ks-info-item"><div style="display: flex; align-items: center; gap: 12px;"><div style="width: 32px; height: 32px; background: var(--bg-page); border-radius: 4px; display: flex; align-items: center; justify-content: center;">📅</div><div><div style="font-weight: 500;">kube-scheduler</div><div style="font-size: 11px; color: var(--text-secondary);">调度器</div></div></div><span class="ks-status ks-status-healthy"><span class="ks-status-dot"></span>健康</span></li>
+                                    <li class="ks-info-item"><div style="display: flex; align-items: center; gap: 12px;"><div style="width: 32px; height: 32px; background: var(--bg-page); border-radius: 4px; display: flex; align-items: center; justify-content: center;">💾</div><div><div style="font-weight: 500;">etcd</div><div style="font-size: 11px; color: var(--text-secondary);">分布式键值存储</div></div></div><span class="ks-status ks-status-healthy"><span class="ks-status-dot"></span>健康</span></li>
+                                    <li class="ks-info-item"><div style="display: flex; align-items: center; gap: 12px;"><div style="width: 32px; height: 32px; background: var(--bg-page); border-radius: 4px; display: flex; align-items: center; justify-content: center;">🌐</div><div><div style="font-weight: 500;">CoreDNS</div><div style="font-size: 11px; color: var(--text-secondary);">集群 DNS 服务</div></div></div><span class="ks-status ks-status-healthy"><span class="ks-status-dot"></span>健康</span></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 资源配额 -->
+                    <div class="ks-card">
+                        <div class="ks-card-header"><h3 class="ks-card-title">资源配额使用</h3></div>
+                        <div class="ks-card-body">
+                            <div class="ks-grid-2" style="margin-bottom: 0;">
+                                <div>
+                                    <div style="margin-bottom: 20px;">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="font-weight: 500;">CPU 使用率</span><span style="color: var(--text-secondary); font-size: 12px;">18 / 40 Cores (45%)</span></div>
+                                        <div class="ks-progress"><div class="ks-progress-fill blue" style="width: 45%;"></div></div>
+                                    </div>
+                                    <div>
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="font-weight: 500;">内存使用率</span><span style="color: var(--text-secondary); font-size: 12px;">49.6 / 80 GiB (62%)</span></div>
+                                        <div class="ks-progress"><div class="ks-progress-fill green" style="width: 62%;"></div></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="margin-bottom: 20px;">
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="font-weight: 500;">存储使用率</span><span style="color: var(--text-secondary); font-size: 12px;">380 / 1000 GB (38%)</span></div>
+                                        <div class="ks-progress"><div class="ks-progress-fill orange" style="width: 38%;"></div></div>
+                                    </div>
+                                    <div>
+                                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span style="font-weight: 500;">Pod 数量</span><span style="color: var(--text-secondary); font-size: 12px;">156 / 500 (31%)</span></div>
+                                        <div class="ks-progress"><div class="ks-progress-fill green" style="width: 31%;"></div></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        `;
+    </script>
+</body>
+</html>

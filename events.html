@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KubeSphere - 事件日志</title>
+    <link rel="stylesheet" href="base.css">
+</head>
+<body>
+    <div class="ks-layout ks-layout-with-sidebar" id="app"></div>
+    <script src="shared.js"></script>
+    <script>
+        document.getElementById('app').innerHTML = `
+            ${getSidebarHTML('events')}
+            <main class="ks-main ks-main-with-sidebar">
+                ${getHeaderHTML([{text: '工作台', href: 'index.html'}, {text: '监控告警'}, {text: '事件日志'}])}
+                <div class="ks-content">
+                    <div class="ks-card">
+                        <div class="ks-table-toolbar">
+                            <div class="ks-toolbar-left">
+                                <select class="ks-select"><option value="">全部命名空间</option><option>default</option><option>production</option><option>kube-system</option></select>
+                                <select class="ks-select"><option value="">全部类型</option><option>Normal</option><option>Warning</option></select>
+                                <select class="ks-select"><option value="">全部资源</option><option>Pod</option><option>Node</option><option>Deployment</option><option>Service</option></select>
+                            </div>
+                            <div class="ks-toolbar-right">
+                                <input type="text" class="ks-input" placeholder="按关键词搜索..." style="width: 200px;">
+                                <button class="ks-btn ks-btn-default"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>刷新</button>
+                            </div>
+                        </div>
+                        <table class="ks-table">
+                            <thead><tr><th>类型</th><th>原因</th><th>资源</th><th>消息</th><th>来源</th><th>时间</th></tr></thead>
+                            <tbody>
+                                <tr><td><span class="ks-tag ks-tag-warning">Warning</span></td><td>BackOff</td><td><div><div style="font-weight: 500;">api-gateway-xxx</div><div style="font-size: 11px; color: var(--text-secondary);">Pod / production</div></div></td><td style="max-width: 300px; font-size: 12px;">Back-off restarting failed container</td><td>kubelet</td><td style="font-size: 12px; white-space: nowrap;">2024-01-15 14:35</td></tr>
+                                <tr><td><span class="ks-tag ks-tag-success">Normal</span></td><td>Scheduled</td><td><div><div style="font-weight: 500;">nginx-xxx-abc</div><div style="font-size: 11px; color: var(--text-secondary);">Pod / default</div></div></td><td style="max-width: 300px; font-size: 12px;">Successfully assigned default/nginx-xxx-abc to worker-02</td><td>scheduler</td><td style="font-size: 12px; white-space: nowrap;">2024-01-15 14:30</td></tr>
+                                <tr><td><span class="ks-tag ks-tag-success">Normal</span></td><td>Pulled</td><td><div><div style="font-weight: 500;">nginx-xxx-abc</div><div style="font-size: 11px; color: var(--text-secondary);">Pod / default</div></div></td><td style="max-width: 300px; font-size: 12px;">Container image "nginx:1.21" already present on machine</td><td>kubelet</td><td style="font-size: 12px; white-space: nowrap;">2024-01-15 14:30</td></tr>
+                                <tr><td><span class="ks-tag ks-tag-success">Normal</span></td><td>Created</td><td><div><div style="font-weight: 500;">nginx-xxx-abc</div><div style="font-size: 11px; color: var(--text-secondary);">Pod / default</div></div></td><td style="max-width: 300px; font-size: 12px;">Created container nginx</td><td>kubelet</td><td style="font-size: 12px; white-space: nowrap;">2024-01-15 14:30</td></tr>
+                                <tr><td><span class="ks-tag ks-tag-success">Normal</span></td><td>Started</td><td><div><div style="font-weight: 500;">nginx-xxx-abc</div><div style="font-size: 11px; color: var(--text-secondary);">Pod / default</div></div></td><td style="max-width: 300px; font-size: 12px;">Started container nginx</td><td>kubelet</td><td style="font-size: 12px; white-space: nowrap;">2024-01-15 14:30</td></tr>
+                                <tr><td><span class="ks-tag ks-tag-warning">Warning</span></td><td>FailedMount</td><td><div><div style="font-weight: 500;">mysql-0</div><div style="font-size: 11px; color: var(--text-secondary);">Pod / database</div></div></td><td style="max-width: 300px; font-size: 12px;">Unable to attach or mount volumes: timed out waiting for the condition</td><td>kubelet</td><td style="font-size: 12px; white-space: nowrap;">2024-01-15 14:25</td></tr>
+                                <tr><td><span class="ks-tag ks-tag-success">Normal</span></td><td>ScalingReplicaSet</td><td><div><div style="font-weight: 500;">nginx-deployment</div><div style="font-size: 11px; color: var(--text-secondary);">Deployment / default</div></div></td><td style="max-width: 300px; font-size: 12px;">Scaled up replica set nginx-deployment-xxx to 3</td><td>deployment-controller</td><td style="font-size: 12px; white-space: nowrap;">2024-01-15 14:20</td></tr>
+                                <tr><td><span class="ks-tag ks-tag-warning">Warning</span></td><td>Unhealthy</td><td><div><div style="font-weight: 500;">notification-xxx</div><div style="font-size: 11px; color: var(--text-secondary);">Pod / production</div></div></td><td style="max-width: 300px; font-size: 12px;">Readiness probe failed: HTTP probe failed with statuscode: 503</td><td>kubelet</td><td style="font-size: 12px; white-space: nowrap;">2024-01-15 14:15</td></tr>
+                                <tr><td><span class="ks-tag ks-tag-success">Normal</span></td><td>NodeReady</td><td><div><div style="font-weight: 500;">worker-04</div><div style="font-size: 11px; color: var(--text-secondary);">Node</div></div></td><td style="max-width: 300px; font-size: 12px;">Node worker-04 status is now: NodeReady</td><td>kubelet</td><td style="font-size: 12px; white-space: nowrap;">2024-01-15 14:00</td></tr>
+                                <tr><td><span class="ks-tag ks-tag-success">Normal</span></td><td>Killing</td><td><div><div style="font-weight: 500;">old-pod-xxx</div><div style="font-size: 11px; color: var(--text-secondary);">Pod / staging</div></div></td><td style="max-width: 300px; font-size: 12px;">Stopping container app</td><td>kubelet</td><td style="font-size: 12px; white-space: nowrap;">2024-01-15 13:55</td></tr>
+                            </tbody>
+                        </table>
+                        <div class="ks-pagination"><div class="ks-pagination-info">共 1,248 条记录，每页显示 10 条</div><div class="ks-pagination-controls"><button class="ks-pagination-btn" disabled>&lt;</button><button class="ks-pagination-btn active">1</button><button class="ks-pagination-btn">2</button><button class="ks-pagination-btn">3</button><button class="ks-pagination-btn">...</button><button class="ks-pagination-btn">125</button><button class="ks-pagination-btn">&gt;</button></div></div>
+                    </div>
+                </div>
+            </main>
+        `;
+    </script>
+</body>
+</html>

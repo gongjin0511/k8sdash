@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KubeSphere - 告警管理</title>
+    <link rel="stylesheet" href="base.css">
+</head>
+<body>
+    <div class="ks-layout ks-layout-with-sidebar" id="app"></div>
+    <script src="shared.js"></script>
+    <script>
+        document.getElementById('app').innerHTML = `
+            ${getSidebarHTML('alerts')}
+            <main class="ks-main ks-main-with-sidebar">
+                ${getHeaderHTML([{text: '工作台', href: 'index.html'}, {text: '监控告警'}, {text: '告警管理'}])}
+                <div class="ks-tabs">
+                    <div class="ks-tab active" onclick="switchTab(this)">活跃告警<span class="ks-tab-badge">8</span></div>
+                    <div class="ks-tab" onclick="switchTab(this)">告警历史<span class="ks-tab-badge">156</span></div>
+                    <div class="ks-tab" onclick="switchTab(this)">告警规则<span class="ks-tab-badge">24</span></div>
+                </div>
+                <div class="ks-content">
+                    <div class="ks-card">
+                        <div class="ks-table-toolbar">
+                            <div class="ks-toolbar-left">
+                                <select class="ks-select"><option value="">全部级别</option><option>紧急</option><option>警告</option><option>信息</option></select>
+                                <select class="ks-select"><option value="">全部来源</option><option>节点</option><option>Pod</option><option>容器</option></select>
+                            </div>
+                            <div class="ks-toolbar-right">
+                                <input type="text" class="ks-input" placeholder="按名称搜索..." style="width: 200px;">
+                                <button class="ks-btn ks-btn-primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>创建告警规则</button>
+                            </div>
+                        </div>
+                        <table class="ks-table">
+                            <thead><tr><th>告警名称</th><th>级别</th><th>资源</th><th>消息</th><th>触发时间</th><th>状态</th><th>操作</th></tr></thead>
+                            <tbody>
+                                <tr><td><div class="ks-table-cell-main"><div class="ks-table-cell-icon" style="background: rgba(202, 38, 33, 0.1); color: var(--ks-danger);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div><div class="ks-table-cell-name">HighMemoryUsage</div><div class="ks-table-cell-desc">内存使用率超过阈值</div></div></div></td><td><span class="ks-tag" style="background: rgba(202, 38, 33, 0.1); color: var(--ks-danger);">紧急</span></td><td><code>worker-01</code></td><td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;">节点内存使用率达到 92%，超过 90% 阈值</td><td>2024-01-15 14:30</td><td><span class="ks-status ks-status-failed"><span class="ks-status-dot"></span>触发中</span></td><td><div class="ks-action-btns"><button class="ks-action-btn" title="静默"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 14V2"/><path d="M9 18.12L7 14"/><circle cx="12" cy="12" r="10"/></svg></button><button class="ks-action-btn" title="详情"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div></td></tr>
+                                <tr><td><div class="ks-table-cell-main"><div class="ks-table-cell-icon" style="background: rgba(245, 166, 35, 0.1); color: var(--ks-warning);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div><div class="ks-table-cell-name">PodRestartingTooMuch</div><div class="ks-table-cell-desc">Pod 频繁重启</div></div></div></td><td><span class="ks-tag ks-tag-warning">警告</span></td><td><code>api-gateway-xxx</code></td><td style="max-width: 200px;">Pod 在过去 1 小时内重启了 5 次</td><td>2024-01-15 13:45</td><td><span class="ks-status ks-status-warning"><span class="ks-status-dot"></span>触发中</span></td><td><div class="ks-action-btns"><button class="ks-action-btn" title="静默"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 14V2"/><path d="M9 18.12L7 14"/><circle cx="12" cy="12" r="10"/></svg></button><button class="ks-action-btn" title="详情"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div></td></tr>
+                                <tr><td><div class="ks-table-cell-main"><div class="ks-table-cell-icon" style="background: rgba(202, 38, 33, 0.1); color: var(--ks-danger);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div><div class="ks-table-cell-name">DeploymentReplicasUnavailable</div><div class="ks-table-cell-desc">部署副本不可用</div></div></div></td><td><span class="ks-tag" style="background: rgba(202, 38, 33, 0.1); color: var(--ks-danger);">紧急</span></td><td><code>notification-service</code></td><td style="max-width: 200px;">Deployment 期望 2 个副本，但只有 0 个可用</td><td>2024-01-15 12:30</td><td><span class="ks-status ks-status-failed"><span class="ks-status-dot"></span>触发中</span></td><td><div class="ks-action-btns"><button class="ks-action-btn" title="静默"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 14V2"/><path d="M9 18.12L7 14"/><circle cx="12" cy="12" r="10"/></svg></button><button class="ks-action-btn" title="详情"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div></td></tr>
+                                <tr><td><div class="ks-table-cell-main"><div class="ks-table-cell-icon" style="background: rgba(245, 166, 35, 0.1); color: var(--ks-warning);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><div><div class="ks-table-cell-name">HighCPUUsage</div><div class="ks-table-cell-desc">CPU 使用率过高</div></div></div></td><td><span class="ks-tag ks-tag-warning">警告</span></td><td><code>worker-02</code></td><td style="max-width: 200px;">节点 CPU 使用率达到 78%</td><td>2024-01-15 11:15</td><td><span class="ks-status ks-status-warning"><span class="ks-status-dot"></span>触发中</span></td><td><div class="ks-action-btns"><button class="ks-action-btn" title="静默"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 14V2"/><path d="M9 18.12L7 14"/><circle cx="12" cy="12" r="10"/></svg></button><button class="ks-action-btn" title="详情"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div></td></tr>
+                                <tr><td><div class="ks-table-cell-main"><div class="ks-table-cell-icon" style="background: rgba(50, 157, 206, 0.1); color: var(--ks-primary);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div><div><div class="ks-table-cell-name">PVCNearlyFull</div><div class="ks-table-cell-desc">存储卷即将占满</div></div></div></td><td><span class="ks-tag ks-tag-primary">信息</span></td><td><code>app-logs</code></td><td style="max-width: 200px;">PVC 使用率达到 88%，建议扩容</td><td>2024-01-15 10:00</td><td><span class="ks-status ks-status-pending"><span class="ks-status-dot"></span>触发中</span></td><td><div class="ks-action-btns"><button class="ks-action-btn" title="静默"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 14V2"/><path d="M9 18.12L7 14"/><circle cx="12" cy="12" r="10"/></svg></button><button class="ks-action-btn" title="详情"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></button></div></td></tr>
+                            </tbody>
+                        </table>
+                        <div class="ks-pagination"><div class="ks-pagination-info">共 8 条记录</div><div class="ks-pagination-controls"><button class="ks-pagination-btn" disabled>&lt;</button><button class="ks-pagination-btn active">1</button><button class="ks-pagination-btn" disabled>&gt;</button></div></div>
+                    </div>
+                </div>
+            </main>
+        `;
+    </script>
+</body>
+</html>

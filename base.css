@@ -1,0 +1,1403 @@
+/* =============================================
+   KubeSphere Dashboard - 统一样式
+   ============================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* KubeSphere 品牌色 */
+    --ks-primary: #329dce;
+    --ks-primary-dark: #2889b5;
+    --ks-success: #55bc8a;
+    --ks-success-dark: #479e88;
+    --ks-warning: #f5a623;
+    --ks-danger: #ca2621;
+    --ks-info: #3385b0;
+
+    /* 深色系 */
+    --ks-dark: #242e42;
+    --ks-dark-light: #36435c;
+    --ks-dark-lighter: #4a5974;
+
+    /* 背景色 */
+    --bg-page: #eff4f9;
+    --bg-card: #ffffff;
+    --bg-sidebar: #242e42;
+    --bg-header: #ffffff;
+    --bg-hover: #f9fbfd;
+
+    /* 文字色 */
+    --text-primary: #242e42;
+    --text-secondary: #79879c;
+    --text-light: #abb4be;
+    --text-white: #ffffff;
+
+    /* 边框色 */
+    --border-color: #d8dee5;
+    --border-light: #e3e9ef;
+
+    /* 阴影 */
+    --shadow-sm: 0 1px 4px rgba(36, 46, 66, 0.08);
+    --shadow-md: 0 4px 8px rgba(36, 46, 66, 0.1);
+    --shadow-lg: 0 8px 16px rgba(36, 46, 66, 0.12);
+
+    /* 尺寸 */
+    --header-height: 60px;
+    --sidebar-width: 220px;
+    --sidebar-collapsed: 60px;
+}
+
+body {
+    font-family: Roboto, "PingFang SC", "Lantinghei SC", "Helvetica Neue", Helvetica, Arial, "Microsoft YaHei", sans-serif;
+    font-size: 12px;
+    line-height: 1.67;
+    color: var(--text-primary);
+    background: var(--bg-page);
+    min-height: 100vh;
+}
+
+a {
+    color: var(--ks-primary);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+code {
+    font-family: "SF Mono", Monaco, Consolas, monospace;
+    background: var(--bg-page);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+}
+
+/* =============================================
+   布局
+   ============================================= */
+
+.ks-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+.ks-layout-workbench {
+    flex-direction: column;
+}
+
+.ks-layout-with-sidebar {
+    flex-direction: row;
+}
+
+/* =============================================
+   顶部导航栏
+   ============================================= */
+
+.ks-header {
+    height: var(--header-height);
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.ks-header-left {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.ks-header-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.ks-header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* Logo */
+.ks-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.ks-logo:hover {
+    text-decoration: none;
+}
+
+.ks-logo-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--ks-success), var(--ks-primary));
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.ks-logo-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 1px;
+}
+
+/* 顶部导航项 */
+.ks-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 12px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.ks-nav-item:hover {
+    color: var(--text-primary);
+    background: var(--bg-page);
+    text-decoration: none;
+}
+
+.ks-nav-item.active {
+    color: var(--ks-primary);
+    background: rgba(50, 157, 206, 0.1);
+}
+
+.ks-nav-item svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* 顶部图标按钮 */
+.ks-header-icon {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.ks-header-icon:hover {
+    background: var(--bg-page);
+    color: var(--text-primary);
+}
+
+.ks-header-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* 用户头像 */
+.ks-user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.ks-user:hover {
+    background: var(--bg-page);
+}
+
+.ks-user-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ks-primary), var(--ks-success));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.ks-user-name {
+    color: var(--text-primary);
+    font-size: 12px;
+}
+
+.ks-user svg {
+    width: 12px;
+    height: 12px;
+    color: var(--text-light);
+}
+
+/* 搜索框 */
+.ks-search {
+    display: flex;
+    align-items: center;
+    background: var(--bg-page);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 6px 12px;
+    width: 240px;
+    transition: all 0.2s;
+}
+
+.ks-search:focus-within {
+    border-color: var(--ks-primary);
+    box-shadow: 0 0 0 2px rgba(50, 157, 206, 0.1);
+}
+
+.ks-search svg {
+    width: 14px;
+    height: 14px;
+    color: var(--text-light);
+    margin-right: 8px;
+}
+
+.ks-search input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    font-size: 12px;
+    color: var(--text-primary);
+}
+
+.ks-search input::placeholder {
+    color: var(--text-light);
+}
+
+/* =============================================
+   左侧边栏
+   ============================================= */
+
+.ks-sidebar {
+    width: var(--sidebar-width);
+    background: var(--bg-sidebar);
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    overflow-y: auto;
+    z-index: 200;
+}
+
+.ks-sidebar-header {
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ks-sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+    text-decoration: none;
+}
+
+.ks-sidebar-logo:hover {
+    text-decoration: none;
+}
+
+.ks-sidebar-logo-icon {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--ks-primary), var(--ks-success));
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.ks-sidebar-logo-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* 侧边栏导航 */
+.ks-sidebar-nav {
+    padding: 12px 0;
+}
+
+.ks-sidebar-section {
+    margin-bottom: 8px;
+}
+
+.ks-sidebar-section-title {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 11px;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    letter-spacing: 0.5px;
+}
+
+.ks-sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    font-size: 12px;
+    transition: all 0.2s;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+}
+
+.ks-sidebar-item:hover {
+    background: var(--ks-dark-light);
+    color: #fff;
+    text-decoration: none;
+}
+
+.ks-sidebar-item.active {
+    background: var(--ks-dark-light);
+    color: #fff;
+    border-left-color: var(--ks-success);
+}
+
+.ks-sidebar-item svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.ks-sidebar-item-text {
+    flex: 1;
+}
+
+.ks-sidebar-arrow {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s;
+}
+
+.ks-sidebar-item.expanded .ks-sidebar-arrow {
+    transform: rotate(90deg);
+}
+
+/* 子菜单 */
+.ks-sidebar-submenu {
+    display: none;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.ks-sidebar-submenu.open {
+    display: block;
+}
+
+.ks-sidebar-submenu .ks-sidebar-item {
+    padding-left: 42px;
+}
+
+.ks-sidebar-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.1);
+    margin: 8px 16px;
+}
+
+/* =============================================
+   主内容区域
+   ============================================= */
+
+.ks-main {
+    flex: 1;
+    min-height: 100vh;
+}
+
+.ks-main-with-sidebar {
+    margin-left: var(--sidebar-width);
+}
+
+.ks-content {
+    padding: 20px;
+}
+
+/* 页面头部 */
+.ks-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.ks-page-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* 面包屑 */
+.ks-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.ks-breadcrumb a {
+    color: var(--text-secondary);
+}
+
+.ks-breadcrumb a:hover {
+    color: var(--ks-primary);
+}
+
+.ks-breadcrumb-separator {
+    color: var(--text-light);
+}
+
+.ks-breadcrumb-current {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* =============================================
+   卡片
+   ============================================= */
+
+.ks-card {
+    background: var(--bg-card);
+    border-radius: 4px;
+    box-shadow: var(--shadow-sm);
+}
+
+.ks-card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ks-card-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.ks-card-body {
+    padding: 20px;
+}
+
+.ks-card-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--border-light);
+    text-align: center;
+}
+
+/* =============================================
+   表格
+   ============================================= */
+
+.ks-table-toolbar {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.ks-toolbar-left,
+.ks-toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ks-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ks-table th,
+.ks-table td {
+    padding: 12px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-light);
+    font-size: 12px;
+}
+
+.ks-table th {
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: var(--bg-page);
+}
+
+.ks-table tbody tr {
+    transition: background 0.2s;
+}
+
+.ks-table tbody tr:hover {
+    background: var(--bg-hover);
+}
+
+.ks-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* 表格单元格 */
+.ks-table-cell-main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ks-table-cell-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--bg-page);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+}
+
+.ks-table-cell-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.ks-table-cell-name {
+    color: var(--ks-primary);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.ks-table-cell-name:hover {
+    text-decoration: underline;
+}
+
+.ks-table-cell-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+/* 分页 */
+.ks-pagination {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid var(--border-light);
+}
+
+.ks-pagination-info {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.ks-pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.ks-pagination-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border-color);
+    background: #fff;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.ks-pagination-btn:hover:not(:disabled) {
+    border-color: var(--ks-primary);
+    color: var(--ks-primary);
+}
+
+.ks-pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ks-pagination-btn.active {
+    background: var(--ks-primary);
+    border-color: var(--ks-primary);
+    color: #fff;
+}
+
+/* =============================================
+   按钮
+   ============================================= */
+
+.ks-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.ks-btn-primary {
+    background: var(--ks-primary);
+    color: #fff;
+}
+
+.ks-btn-primary:hover {
+    background: var(--ks-primary-dark);
+}
+
+.ks-btn-success {
+    background: var(--ks-success);
+    color: #fff;
+}
+
+.ks-btn-success:hover {
+    background: var(--ks-success-dark);
+}
+
+.ks-btn-default {
+    background: #fff;
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+.ks-btn-default:hover {
+    border-color: var(--ks-primary);
+    color: var(--ks-primary);
+}
+
+.ks-btn-text {
+    background: transparent;
+    color: var(--text-secondary);
+    padding: 4px 8px;
+}
+
+.ks-btn-text:hover {
+    color: var(--ks-primary);
+    background: rgba(50, 157, 206, 0.1);
+}
+
+.ks-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* 操作按钮组 */
+.ks-action-btns {
+    display: flex;
+    gap: 4px;
+}
+
+.ks-action-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+}
+
+.ks-action-btn:hover {
+    background: var(--bg-page);
+    color: var(--ks-primary);
+}
+
+.ks-action-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* =============================================
+   表单元素
+   ============================================= */
+
+.ks-select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--text-primary);
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ks-select:hover {
+    border-color: var(--ks-primary);
+}
+
+.ks-select:focus {
+    outline: none;
+    border-color: var(--ks-primary);
+    box-shadow: 0 0 0 2px rgba(50, 157, 206, 0.1);
+}
+
+.ks-input {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--text-primary);
+    background: #fff;
+    transition: all 0.2s;
+}
+
+.ks-input:hover {
+    border-color: var(--ks-primary);
+}
+
+.ks-input:focus {
+    outline: none;
+    border-color: var(--ks-primary);
+    box-shadow: 0 0 0 2px rgba(50, 157, 206, 0.1);
+}
+
+.ks-input::placeholder {
+    color: var(--text-light);
+}
+
+/* =============================================
+   状态标签
+   ============================================= */
+
+.ks-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.ks-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.ks-status-running,
+.ks-status-healthy,
+.ks-status-ready,
+.ks-status-active {
+    background: rgba(85, 188, 138, 0.1);
+    color: var(--ks-success);
+}
+
+.ks-status-pending,
+.ks-status-warning {
+    background: rgba(245, 166, 35, 0.1);
+    color: var(--ks-warning);
+}
+
+.ks-status-failed,
+.ks-status-error,
+.ks-status-unhealthy {
+    background: rgba(202, 38, 33, 0.1);
+    color: var(--ks-danger);
+}
+
+.ks-status-completed,
+.ks-status-succeeded {
+    background: rgba(50, 157, 206, 0.1);
+    color: var(--ks-primary);
+}
+
+.ks-status-unknown,
+.ks-status-stopped {
+    background: rgba(121, 135, 156, 0.1);
+    color: var(--text-secondary);
+}
+
+/* 类型标签 */
+.ks-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.ks-tag-dark {
+    background: var(--ks-dark);
+    color: #fff;
+}
+
+.ks-tag-primary {
+    background: rgba(50, 157, 206, 0.1);
+    color: var(--ks-primary);
+}
+
+.ks-tag-success {
+    background: rgba(85, 188, 138, 0.1);
+    color: var(--ks-success);
+}
+
+.ks-tag-warning {
+    background: rgba(245, 166, 35, 0.1);
+    color: var(--ks-warning);
+}
+
+.ks-tag-default {
+    background: var(--bg-page);
+    color: var(--text-secondary);
+}
+
+/* =============================================
+   统计卡片
+   ============================================= */
+
+.ks-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.ks-stat-card {
+    background: var(--bg-card);
+    border-radius: 4px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.ks-stat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.ks-stat-title {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.ks-stat-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ks-stat-icon.blue {
+    background: rgba(50, 157, 206, 0.1);
+    color: var(--ks-primary);
+}
+
+.ks-stat-icon.green {
+    background: rgba(85, 188, 138, 0.1);
+    color: var(--ks-success);
+}
+
+.ks-stat-icon.orange {
+    background: rgba(245, 166, 35, 0.1);
+    color: var(--ks-warning);
+}
+
+.ks-stat-icon.red {
+    background: rgba(202, 38, 33, 0.1);
+    color: var(--ks-danger);
+}
+
+.ks-stat-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.ks-stat-value {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.ks-stat-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+/* =============================================
+   环形进度条
+   ============================================= */
+
+.ks-ring {
+    position: relative;
+    display: inline-block;
+}
+
+.ks-ring svg {
+    transform: rotate(-90deg);
+}
+
+.ks-ring-bg {
+    fill: none;
+    stroke: var(--border-light);
+}
+
+.ks-ring-fill {
+    fill: none;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.3s;
+}
+
+.ks-ring-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* =============================================
+   进度条
+   ============================================= */
+
+.ks-progress {
+    height: 6px;
+    background: var(--border-light);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.ks-progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+}
+
+.ks-progress-fill.blue {
+    background: var(--ks-primary);
+}
+
+.ks-progress-fill.green {
+    background: var(--ks-success);
+}
+
+.ks-progress-fill.orange {
+    background: var(--ks-warning);
+}
+
+.ks-progress-fill.red {
+    background: var(--ks-danger);
+}
+
+/* =============================================
+   Tab 切换
+   ============================================= */
+
+.ks-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-light);
+    background: var(--bg-card);
+}
+
+.ks-tab {
+    padding: 14px 20px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+}
+
+.ks-tab:hover {
+    color: var(--text-primary);
+}
+
+.ks-tab.active {
+    color: var(--ks-primary);
+    border-bottom-color: var(--ks-primary);
+}
+
+.ks-tab-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--bg-page);
+    border-radius: 10px;
+    font-size: 11px;
+    margin-left: 6px;
+}
+
+/* =============================================
+   节点卡片
+   ============================================= */
+
+.ks-node-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 16px;
+}
+
+.ks-node-card {
+    background: var(--bg-page);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    transition: all 0.2s;
+}
+
+.ks-node-card:hover {
+    border-color: var(--ks-primary);
+    box-shadow: var(--shadow-md);
+}
+
+.ks-node-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.ks-node-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ks-node-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(50, 157, 206, 0.1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ks-primary);
+}
+
+.ks-node-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.ks-node-name {
+    font-weight: 600;
+    color: var(--ks-primary);
+    cursor: pointer;
+}
+
+.ks-node-name:hover {
+    text-decoration: underline;
+}
+
+.ks-node-ip {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.ks-node-role {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.ks-node-role.master {
+    background: rgba(50, 157, 206, 0.1);
+    color: var(--ks-primary);
+}
+
+.ks-node-role.worker {
+    background: rgba(85, 188, 138, 0.1);
+    color: var(--ks-success);
+}
+
+.ks-node-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.ks-node-metric {
+    text-align: center;
+    padding: 12px;
+    background: var(--bg-card);
+    border-radius: 4px;
+}
+
+.ks-node-metric-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.ks-node-metric-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+/* =============================================
+   监控图表区域
+   ============================================= */
+
+.ks-chart-container {
+    height: 200px;
+    background: var(--bg-page);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-light);
+}
+
+/* =============================================
+   信息列表
+   ============================================= */
+
+.ks-info-list {
+    list-style: none;
+}
+
+.ks-info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.ks-info-item:last-child {
+    border-bottom: none;
+}
+
+.ks-info-label {
+    color: var(--text-secondary);
+}
+
+.ks-info-value {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* =============================================
+   帮助浮动按钮
+   ============================================= */
+
+.ks-help-float {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    background: var(--ks-success);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(85, 188, 138, 0.4);
+    transition: transform 0.2s;
+    z-index: 1000;
+}
+
+.ks-help-float:hover {
+    transform: scale(1.1);
+}
+
+.ks-help-float svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* =============================================
+   空状态
+   ============================================= */
+
+.ks-empty {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.ks-empty-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 16px;
+    color: var(--text-light);
+}
+
+.ks-empty-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.ks-empty-text {
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+/* =============================================
+   Grid 布局辅助
+   ============================================= */
+
+.ks-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.ks-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.ks-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.ks-flex {
+    display: flex;
+}
+
+.ks-flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ks-gap-sm {
+    gap: 8px;
+}
+
+.ks-gap-md {
+    gap: 16px;
+}
+
+.ks-gap-lg {
+    gap: 24px;
+}
+
+.ks-mb-sm {
+    margin-bottom: 8px;
+}
+
+.ks-mb-md {
+    margin-bottom: 16px;
+}
+
+.ks-mb-lg {
+    margin-bottom: 24px;
+}
+
+/* =============================================
+   响应式
+   ============================================= */
+
+@media (max-width: 1200px) {
+    .ks-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .ks-grid-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .ks-grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .ks-grid-2,
+    .ks-grid-3,
+    .ks-grid-4 {
+        grid-template-columns: 1fr;
+    }
+
+    .ks-node-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .ks-sidebar {
+        width: var(--sidebar-collapsed);
+    }
+
+    .ks-sidebar-logo-text,
+    .ks-sidebar-section-title,
+    .ks-sidebar-item-text,
+    .ks-sidebar-arrow {
+        display: none;
+    }
+
+    .ks-sidebar-item {
+        justify-content: center;
+        padding: 12px;
+    }
+
+    .ks-main-with-sidebar {
+        margin-left: var(--sidebar-collapsed);
+    }
+
+    .ks-header-center {
+        display: none;
+    }
+
+    .ks-stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .ks-table-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .ks-toolbar-left,
+    .ks-toolbar-right {
+        flex-wrap: wrap;
+    }
+}
