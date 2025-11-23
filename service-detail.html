@@ -13,8 +13,8 @@
             margin-bottom: 24px;
         }
         .detail-icon {
-            width: 64px;
-            height: 64px;
+            width: 56px;
+            height: 56px;
             border-radius: 8px;
             background: linear-gradient(135deg, var(--ks-primary), #2683b5);
             display: flex;
@@ -24,40 +24,53 @@
             flex-shrink: 0;
         }
         .detail-icon svg {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
+        }
+        .detail-info {
+            flex: 1;
         }
         .detail-info h1 {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 600;
             margin: 0 0 8px 0;
             color: var(--ks-text);
         }
         .detail-meta {
             display: flex;
-            gap: 24px;
+            align-items: center;
+            gap: 16px;
             flex-wrap: wrap;
         }
         .detail-meta-item {
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 13px;
+            font-size: 12px;
             color: var(--ks-text-secondary);
         }
+        .meta-tag {
+            padding: 2px 10px;
+            background: rgba(85, 188, 138, 0.1);
+            color: var(--ks-success);
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid rgba(85, 188, 138, 0.2);
+        }
         .detail-actions {
-            margin-left: auto;
             display: flex;
             gap: 8px;
+            flex-shrink: 0;
         }
         .detail-tabs {
             display: flex;
-            gap: 4px;
+            gap: 0;
             border-bottom: 1px solid var(--ks-border);
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
         .detail-tab {
-            padding: 12px 20px;
+            padding: 12px 24px;
             font-size: 14px;
             color: var(--ks-text-secondary);
             cursor: pointer;
@@ -71,6 +84,7 @@
         .detail-tab.active {
             color: var(--ks-primary);
             border-bottom-color: var(--ks-primary);
+            font-weight: 500;
         }
         .tab-content {
             display: none;
@@ -78,96 +92,128 @@
         .tab-content.active {
             display: block;
         }
-        .info-section {
-            margin-bottom: 24px;
-        }
-        .info-section-title {
+        /* 外部访问区块 */
+        .section-title {
             font-size: 14px;
             font-weight: 600;
             color: var(--ks-text);
             margin-bottom: 16px;
-            padding-bottom: 8px;
+        }
+        .access-list {
+            margin-bottom: 32px;
+        }
+        .access-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
             border-bottom: 1px solid var(--ks-border);
         }
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 16px;
+        .access-item:last-child {
+            border-bottom: none;
         }
-        .info-item {
+        .access-icon {
+            width: 20px;
+            margin-right: 12px;
+            color: var(--ks-primary);
+        }
+        .access-url {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            color: var(--ks-primary);
+            text-decoration: none;
+        }
+        .access-url:hover {
+            text-decoration: underline;
+        }
+        .access-type {
+            margin-left: 16px;
+            font-size: 12px;
+            color: var(--ks-text-secondary);
+        }
+        .access-copy {
+            margin-left: auto;
+            font-size: 12px;
+            color: var(--ks-text-secondary);
+            cursor: pointer;
+            padding: 4px 12px;
+            border: none;
+            background: none;
+        }
+        .access-copy:hover {
+            color: var(--ks-primary);
+        }
+        /* 基本信息表格 */
+        .info-table {
+            width: 100%;
+            margin-bottom: 32px;
+        }
+        .info-row {
+            display: flex;
+            border-bottom: 1px solid var(--ks-border);
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-cell {
+            flex: 1;
+            padding: 14px 0;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 6px;
+        }
+        .info-cell:not(:last-child) {
+            padding-right: 32px;
         }
         .info-label {
             font-size: 12px;
             color: var(--ks-text-secondary);
         }
         .info-value {
-            font-size: 14px;
-            color: var(--ks-text);
-            font-weight: 500;
-        }
-        .service-type-badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        .service-type-clusterip {
-            background: rgba(50, 157, 206, 0.1);
-            color: var(--ks-primary);
-        }
-        .service-type-nodeport {
-            background: rgba(85, 188, 138, 0.1);
-            color: var(--ks-success);
-        }
-        .service-type-loadbalancer {
-            background: rgba(245, 166, 35, 0.1);
-            color: var(--ks-warning);
-        }
-        .endpoints-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .endpoint-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            background: var(--ks-bg-dark);
-            border-radius: 6px;
-        }
-        .endpoint-status {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--ks-success);
-        }
-        .endpoint-status.not-ready {
-            background: var(--ks-warning);
-        }
-        .endpoint-address {
-            font-family: 'Monaco', 'Menlo', monospace;
             font-size: 13px;
             color: var(--ks-text);
+            font-weight: 500;
         }
-        .endpoint-pod {
+        .info-value.mono {
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+        /* 选择器标签 */
+        .selector-section {
+            margin-bottom: 32px;
+        }
+        .selector-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .selector-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            background: #f4f5f7;
+            border-radius: 4px;
             font-size: 12px;
-            color: var(--ks-primary);
-            cursor: pointer;
+            font-family: 'Monaco', 'Menlo', monospace;
         }
-        .endpoint-pod:hover {
-            text-decoration: underline;
+        .selector-key {
+            color: var(--ks-primary);
+        }
+        .selector-sep {
+            color: var(--ks-text-secondary);
+            margin: 0 4px;
+        }
+        .selector-value {
+            color: var(--ks-text);
+        }
+        /* 端口卡片 */
+        .port-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
         .port-card {
-            background: var(--ks-bg-dark);
+            background: #f9fbfd;
             border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 12px;
+            padding: 16px 20px;
         }
         .port-header {
             display: flex;
@@ -190,7 +236,7 @@
         .port-info {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
+            gap: 20px;
         }
         .port-item {
             display: flex;
@@ -207,95 +253,53 @@
             color: var(--ks-text);
             font-family: 'Monaco', 'Menlo', monospace;
         }
-        .selector-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
+        /* 端点列表 */
+        .endpoints-section {
+            margin-bottom: 24px;
         }
-        .selector-tag {
-            display: inline-flex;
-            align-items: center;
-            padding: 6px 12px;
-            background: rgba(50, 157, 206, 0.1);
-            border: 1px solid rgba(50, 157, 206, 0.2);
-            border-radius: 4px;
-            font-size: 12px;
-            font-family: 'Monaco', 'Menlo', monospace;
-        }
-        .selector-key {
-            color: var(--ks-primary);
-        }
-        .selector-sep {
-            color: var(--ks-text-secondary);
-            margin: 0 4px;
-        }
-        .selector-value {
-            color: var(--ks-text);
-        }
-        .external-access {
-            background: linear-gradient(135deg, rgba(85, 188, 138, 0.1), rgba(50, 157, 206, 0.1));
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .external-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--ks-text);
-            margin-bottom: 12px;
-        }
-        .external-urls {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .external-url {
+        .endpoint-item {
             display: flex;
             align-items: center;
             gap: 12px;
             padding: 12px 16px;
-            background: white;
+            background: #f9fbfd;
             border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        .endpoint-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--ks-success);
+        }
+        .endpoint-address {
             font-family: 'Monaco', 'Menlo', monospace;
             font-size: 13px;
+            color: var(--ks-text);
         }
-        .external-url a {
+        .endpoint-pod {
+            font-size: 12px;
             color: var(--ks-primary);
-            text-decoration: none;
+            cursor: pointer;
+            margin-left: auto;
         }
-        .external-url a:hover {
+        .endpoint-pod:hover {
             text-decoration: underline;
         }
-        .copy-btn {
-            margin-left: auto;
-            padding: 4px 8px;
-            font-size: 11px;
-            background: var(--ks-bg-dark);
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            color: var(--ks-text-secondary);
-        }
-        .copy-btn:hover {
-            background: var(--ks-border);
-        }
-        .pod-list-mini {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .pod-item-mini {
+        /* Pod列表 */
+        .pod-item {
             display: flex;
             align-items: center;
             gap: 12px;
             padding: 12px 16px;
-            background: var(--ks-bg-dark);
+            background: #f9fbfd;
             border-radius: 6px;
+            margin-bottom: 8px;
             cursor: pointer;
             transition: all 0.2s;
         }
-        .pod-item-mini:hover {
-            background: var(--ks-border);
+        .pod-item:hover {
+            background: #eff4f9;
         }
         .pod-status-dot {
             width: 8px;
@@ -303,13 +307,7 @@
             border-radius: 50%;
             background: var(--ks-success);
         }
-        .pod-status-dot.pending {
-            background: var(--ks-warning);
-        }
-        .pod-status-dot.failed {
-            background: var(--ks-danger);
-        }
-        .pod-name-mini {
+        .pod-name {
             font-size: 13px;
             color: var(--ks-primary);
             font-weight: 500;
@@ -323,6 +321,13 @@
             margin-left: auto;
             font-size: 12px;
             color: var(--ks-text-secondary);
+        }
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--ks-text-secondary);
+            font-size: 13px;
         }
     </style>
 </head>
@@ -359,9 +364,7 @@
                                         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
                                         ${namespace}
                                     </div>
-                                    <div class="detail-meta-item">
-                                        <span class="service-type-badge service-type-nodeport">NodePort</span>
-                                    </div>
+                                    <span class="meta-tag">NodePort</span>
                                     <div class="detail-meta-item">
                                         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                                         创建于 2024-01-10 09:30
@@ -395,56 +398,58 @@
 
                         <!-- 概览 Tab -->
                         <div id="tab-overview" class="tab-content active">
-                            <div class="external-access">
-                                <div class="external-title">外部访问</div>
-                                <div class="external-urls">
-                                    <div class="external-url">
-                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--ks-success)" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                                        <a href="http://192.168.1.100:30080" target="_blank">http://192.168.1.100:30080</a>
-                                        <span style="color: var(--ks-text-secondary); font-size: 11px;">NodePort</span>
-                                        <button class="copy-btn">复制</button>
-                                    </div>
-                                    <div class="external-url">
-                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--ks-primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-                                        <span>api-gateway.production.svc.cluster.local:8080</span>
-                                        <span style="color: var(--ks-text-secondary); font-size: 11px;">Cluster DNS</span>
-                                        <button class="copy-btn">复制</button>
-                                    </div>
+                            <div class="section-title">外部访问</div>
+                            <div class="access-list">
+                                <div class="access-item">
+                                    <svg class="access-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                    <a href="http://192.168.1.100:30080" class="access-url" target="_blank">http://192.168.1.100:30080</a>
+                                    <span class="access-type">NodePort</span>
+                                    <button class="access-copy">复制</button>
+                                </div>
+                                <div class="access-item">
+                                    <svg class="access-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                                    <span class="access-url">api-gateway.production.svc.cluster.local:8080</span>
+                                    <span class="access-type">Cluster DNS</span>
+                                    <button class="access-copy">复制</button>
                                 </div>
                             </div>
 
-                            <div class="info-section">
-                                <div class="info-section-title">基本信息</div>
-                                <div class="info-grid">
-                                    <div class="info-item">
+                            <div class="section-title">基本信息</div>
+                            <div class="info-table">
+                                <div class="info-row">
+                                    <div class="info-cell">
                                         <span class="info-label">名称</span>
                                         <span class="info-value">${serviceName}</span>
                                     </div>
-                                    <div class="info-item">
+                                    <div class="info-cell">
                                         <span class="info-label">命名空间</span>
                                         <span class="info-value">${namespace}</span>
                                     </div>
-                                    <div class="info-item">
+                                    <div class="info-cell">
                                         <span class="info-label">类型</span>
-                                        <span class="info-value"><span class="service-type-badge service-type-nodeport">NodePort</span></span>
+                                        <span class="info-value"><span class="meta-tag">NodePort</span></span>
                                     </div>
-                                    <div class="info-item">
+                                    <div class="info-cell">
                                         <span class="info-label">Cluster IP</span>
-                                        <span class="info-value" style="font-family: monospace;">10.96.128.45</span>
+                                        <span class="info-value mono">10.96.128.45</span>
                                     </div>
-                                    <div class="info-item">
+                                </div>
+                                <div class="info-row">
+                                    <div class="info-cell">
                                         <span class="info-label">Session Affinity</span>
                                         <span class="info-value">None</span>
                                     </div>
-                                    <div class="info-item">
+                                    <div class="info-cell">
                                         <span class="info-label">创建时间</span>
                                         <span class="info-value">2024-01-10 09:30:15</span>
                                     </div>
+                                    <div class="info-cell"></div>
+                                    <div class="info-cell"></div>
                                 </div>
                             </div>
 
-                            <div class="info-section">
-                                <div class="info-section-title">选择器</div>
+                            <div class="selector-section">
+                                <div class="section-title">选择器</div>
                                 <div class="selector-list">
                                     <span class="selector-tag">
                                         <span class="selector-key">app</span>
@@ -462,43 +467,45 @@
 
                         <!-- 端口 Tab -->
                         <div id="tab-ports" class="tab-content">
-                            <div class="port-card">
-                                <div class="port-header">
-                                    <span class="port-name">http</span>
-                                    <span class="port-protocol">TCP</span>
+                            <div class="port-cards">
+                                <div class="port-card">
+                                    <div class="port-header">
+                                        <span class="port-name">http</span>
+                                        <span class="port-protocol">TCP</span>
+                                    </div>
+                                    <div class="port-info">
+                                        <div class="port-item">
+                                            <span class="port-label">Port</span>
+                                            <span class="port-value">8080</span>
+                                        </div>
+                                        <div class="port-item">
+                                            <span class="port-label">Target Port</span>
+                                            <span class="port-value">8080</span>
+                                        </div>
+                                        <div class="port-item">
+                                            <span class="port-label">Node Port</span>
+                                            <span class="port-value">30080</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="port-info">
-                                    <div class="port-item">
-                                        <span class="port-label">Port</span>
-                                        <span class="port-value">8080</span>
+                                <div class="port-card">
+                                    <div class="port-header">
+                                        <span class="port-name">metrics</span>
+                                        <span class="port-protocol">TCP</span>
                                     </div>
-                                    <div class="port-item">
-                                        <span class="port-label">Target Port</span>
-                                        <span class="port-value">8080</span>
-                                    </div>
-                                    <div class="port-item">
-                                        <span class="port-label">Node Port</span>
-                                        <span class="port-value">30080</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="port-card">
-                                <div class="port-header">
-                                    <span class="port-name">metrics</span>
-                                    <span class="port-protocol">TCP</span>
-                                </div>
-                                <div class="port-info">
-                                    <div class="port-item">
-                                        <span class="port-label">Port</span>
-                                        <span class="port-value">9090</span>
-                                    </div>
-                                    <div class="port-item">
-                                        <span class="port-label">Target Port</span>
-                                        <span class="port-value">9090</span>
-                                    </div>
-                                    <div class="port-item">
-                                        <span class="port-label">Node Port</span>
-                                        <span class="port-value">30090</span>
+                                    <div class="port-info">
+                                        <div class="port-item">
+                                            <span class="port-label">Port</span>
+                                            <span class="port-value">9090</span>
+                                        </div>
+                                        <div class="port-item">
+                                            <span class="port-label">Target Port</span>
+                                            <span class="port-value">9090</span>
+                                        </div>
+                                        <div class="port-item">
+                                            <span class="port-label">Node Port</span>
+                                            <span class="port-value">30090</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -506,58 +513,50 @@
 
                         <!-- 端点 Tab -->
                         <div id="tab-endpoints" class="tab-content">
-                            <div class="info-section">
-                                <div class="info-section-title">Ready 端点 (3)</div>
-                                <div class="endpoints-list">
-                                    <div class="endpoint-item">
-                                        <div class="endpoint-status"></div>
-                                        <span class="endpoint-address">10.244.1.15:8080</span>
-                                        <a class="endpoint-pod" href="pod-detail.html">api-gateway-6d4f5b7c8-abc12</a>
-                                    </div>
-                                    <div class="endpoint-item">
-                                        <div class="endpoint-status"></div>
-                                        <span class="endpoint-address">10.244.2.23:8080</span>
-                                        <a class="endpoint-pod" href="pod-detail.html">api-gateway-6d4f5b7c8-def34</a>
-                                    </div>
-                                    <div class="endpoint-item">
-                                        <div class="endpoint-status"></div>
-                                        <span class="endpoint-address">10.244.1.18:8080</span>
-                                        <a class="endpoint-pod" href="pod-detail.html">api-gateway-6d4f5b7c8-ghi56</a>
-                                    </div>
+                            <div class="endpoints-section">
+                                <div class="section-title">Ready 端点 (3)</div>
+                                <div class="endpoint-item">
+                                    <div class="endpoint-status"></div>
+                                    <span class="endpoint-address">10.244.1.15:8080</span>
+                                    <a class="endpoint-pod" href="pod-detail.html">api-gateway-6d4f5b7c8-abc12</a>
+                                </div>
+                                <div class="endpoint-item">
+                                    <div class="endpoint-status"></div>
+                                    <span class="endpoint-address">10.244.2.23:8080</span>
+                                    <a class="endpoint-pod" href="pod-detail.html">api-gateway-6d4f5b7c8-def34</a>
+                                </div>
+                                <div class="endpoint-item">
+                                    <div class="endpoint-status"></div>
+                                    <span class="endpoint-address">10.244.1.18:8080</span>
+                                    <a class="endpoint-pod" href="pod-detail.html">api-gateway-6d4f5b7c8-ghi56</a>
                                 </div>
                             </div>
-                            <div class="info-section">
-                                <div class="info-section-title">Not Ready 端点 (0)</div>
-                                <div style="color: var(--ks-text-secondary); font-size: 13px; padding: 20px; text-align: center;">
-                                    无 Not Ready 端点
-                                </div>
+                            <div class="endpoints-section">
+                                <div class="section-title">Not Ready 端点 (0)</div>
+                                <div class="empty-state">无 Not Ready 端点</div>
                             </div>
                         </div>
 
                         <!-- Pods Tab -->
                         <div id="tab-pods" class="tab-content">
-                            <div class="info-section">
-                                <div class="info-section-title">匹配的 Pods (3)</div>
-                                <div class="pod-list-mini">
-                                    <div class="pod-item-mini" onclick="location.href='pod-detail.html'">
-                                        <div class="pod-status-dot"></div>
-                                        <span class="pod-name-mini">api-gateway-6d4f5b7c8-abc12</span>
-                                        <span class="pod-ip">10.244.1.15</span>
-                                        <span class="pod-node">node-1</span>
-                                    </div>
-                                    <div class="pod-item-mini" onclick="location.href='pod-detail.html'">
-                                        <div class="pod-status-dot"></div>
-                                        <span class="pod-name-mini">api-gateway-6d4f5b7c8-def34</span>
-                                        <span class="pod-ip">10.244.2.23</span>
-                                        <span class="pod-node">node-2</span>
-                                    </div>
-                                    <div class="pod-item-mini" onclick="location.href='pod-detail.html'">
-                                        <div class="pod-status-dot"></div>
-                                        <span class="pod-name-mini">api-gateway-6d4f5b7c8-ghi56</span>
-                                        <span class="pod-ip">10.244.1.18</span>
-                                        <span class="pod-node">node-1</span>
-                                    </div>
-                                </div>
+                            <div class="section-title">匹配的 Pods (3)</div>
+                            <div class="pod-item" onclick="location.href='pod-detail.html'">
+                                <div class="pod-status-dot"></div>
+                                <span class="pod-name">api-gateway-6d4f5b7c8-abc12</span>
+                                <span class="pod-ip">10.244.1.15</span>
+                                <span class="pod-node">node-1</span>
+                            </div>
+                            <div class="pod-item" onclick="location.href='pod-detail.html'">
+                                <div class="pod-status-dot"></div>
+                                <span class="pod-name">api-gateway-6d4f5b7c8-def34</span>
+                                <span class="pod-ip">10.244.2.23</span>
+                                <span class="pod-node">node-2</span>
+                            </div>
+                            <div class="pod-item" onclick="location.href='pod-detail.html'">
+                                <div class="pod-status-dot"></div>
+                                <span class="pod-name">api-gateway-6d4f5b7c8-ghi56</span>
+                                <span class="pod-ip">10.244.1.18</span>
+                                <span class="pod-node">node-1</span>
                             </div>
                         </div>
 
@@ -597,8 +596,8 @@
 
                         <!-- 元数据 Tab -->
                         <div id="tab-metadata" class="tab-content">
-                            <div class="info-section">
-                                <div class="info-section-title">标签</div>
+                            <div class="selector-section">
+                                <div class="section-title">标签</div>
                                 <div class="selector-list">
                                     <span class="selector-tag">
                                         <span class="selector-key">app</span>
@@ -617,8 +616,8 @@
                                     </span>
                                 </div>
                             </div>
-                            <div class="info-section">
-                                <div class="info-section-title">注解</div>
+                            <div class="selector-section">
+                                <div class="section-title">注解</div>
                                 <div class="selector-list">
                                     <span class="selector-tag">
                                         <span class="selector-key">kubernetes.io/created-by</span>
@@ -632,17 +631,19 @@
                                     </span>
                                 </div>
                             </div>
-                            <div class="info-section">
-                                <div class="info-section-title">其他信息</div>
-                                <div class="info-grid">
-                                    <div class="info-item">
+                            <div class="info-table" style="margin-top: 24px;">
+                                <div class="section-title">其他信息</div>
+                                <div class="info-row">
+                                    <div class="info-cell">
                                         <span class="info-label">UID</span>
-                                        <span class="info-value" style="font-family: monospace; font-size: 12px;">a1b2c3d4-e5f6-7890-abcd-ef1234567890</span>
+                                        <span class="info-value mono" style="font-size: 12px;">a1b2c3d4-e5f6-7890-abcd-ef1234567890</span>
                                     </div>
-                                    <div class="info-item">
+                                    <div class="info-cell">
                                         <span class="info-label">Resource Version</span>
-                                        <span class="info-value" style="font-family: monospace;">12345678</span>
+                                        <span class="info-value mono">12345678</span>
                                     </div>
+                                    <div class="info-cell"></div>
+                                    <div class="info-cell"></div>
                                 </div>
                             </div>
                         </div>
