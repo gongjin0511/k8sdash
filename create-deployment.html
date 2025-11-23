@@ -6,58 +6,289 @@
     <title>KubeSphere - 创建 Deployment</title>
     <link rel="stylesheet" href="base.css">
     <style>
-        .create-header { padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; }
-        .create-title { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 12px; }
-        .create-title svg { width: 24px; height: 24px; color: var(--ks-primary); }
-        .create-steps { display: flex; align-items: center; gap: 8px; padding: 20px 24px; background: var(--content-bg); border-bottom: 1px solid var(--border-color); }
-        .step { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 14px; }
-        .step-number { width: 28px; height: 28px; border-radius: 50%; background: var(--border-color); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; }
-        .step.active { color: var(--ks-primary); }
-        .step.active .step-number { background: var(--ks-primary); color: #fff; }
+        /* 创建页面专用样式 */
+        .create-page { max-width: 960px; margin: 0 auto; }
+
+        /* 页面头部 */
+        .create-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+        }
+        .create-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .create-title svg { width: 22px; height: 22px; color: var(--ks-primary); }
+
+        /* 步骤指示器 */
+        .create-steps {
+            display: flex;
+            align-items: center;
+            padding: 20px 24px;
+            background: #f9fbfd;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+        .step-number {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #e4e8eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+        .step.active { color: var(--ks-primary); font-weight: 500; }
+        .step.active .step-number { background: var(--ks-primary); color: #fff; box-shadow: 0 2px 8px rgba(50, 157, 206, 0.35); }
         .step.completed .step-number { background: var(--ks-success); color: #fff; }
-        .step-divider { width: 40px; height: 2px; background: var(--border-color); }
+        .step-divider { width: 48px; height: 2px; background: #e4e8eb; margin: 0 12px; transition: background 0.3s ease; }
         .step-divider.completed { background: var(--ks-success); }
-        .create-body { padding: 24px; max-width: 900px; }
-        .form-section { margin-bottom: 32px; }
-        .section-title { font-size: 15px; font-weight: 600; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px; }
-        .section-title svg { width: 18px; height: 18px; color: var(--ks-primary); }
+
+        /* 表单主体 */
+        .create-body { padding: 24px; }
+
+        /* 表单区块 */
+        .form-section { margin-bottom: 28px; }
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title svg { width: 16px; height: 16px; color: var(--ks-primary); }
+
+        /* 表单网格 */
         .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
         .form-group.full-width { grid-column: span 2; }
-        .form-label { font-size: 13px; font-weight: 500; color: var(--text-primary); display: flex; align-items: center; gap: 4px; }
+
+        /* 表单标签 */
+        .form-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
         .form-label .required { color: var(--ks-danger); }
-        .form-label .tip { color: var(--text-secondary); font-weight: normal; }
-        .form-input, .form-select, .form-textarea { padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 14px; transition: border-color 0.2s; }
-        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--ks-primary); }
-        .form-textarea { min-height: 100px; resize: vertical; font-family: inherit; }
-        .form-help { font-size: 12px; color: var(--text-secondary); }
-        .form-row { display: flex; gap: 12px; align-items: flex-start; }
-        .form-row .form-group { flex: 1; }
-        .resource-inputs { display: flex; gap: 12px; }
-        .resource-input { flex: 1; }
-        .resource-input label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
-        .container-card { background: var(--content-bg); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
-        .container-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-        .container-title { font-weight: 600; display: flex; align-items: center; gap: 8px; }
-        .container-title svg { width: 18px; height: 18px; color: var(--ks-primary); }
-        .remove-btn { color: var(--ks-danger); background: none; border: none; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 4px; }
-        .add-container-btn { display: flex; align-items: center; gap: 8px; padding: 12px; border: 2px dashed var(--border-color); border-radius: 8px; color: var(--text-secondary); cursor: pointer; justify-content: center; transition: all 0.2s; }
-        .add-container-btn:hover { border-color: var(--ks-primary); color: var(--ks-primary); }
-        .port-row { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
-        .port-row input, .port-row select { flex: 1; }
-        .port-row button { flex-shrink: 0; }
-        .env-row { display: flex; gap: 12px; align-items: center; margin-bottom: 8px; }
+        .form-label .tip { color: var(--text-secondary); font-weight: normal; font-size: 12px; }
+
+        /* 表单输入框 - 继承 base.css 高级样式 */
+        .form-input,
+        .form-select,
+        .form-textarea {
+            height: 36px;
+            padding: 0 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 13px;
+            color: var(--text-primary);
+            background: #fff;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        .form-input:hover,
+        .form-select:hover { border-color: #c4c9cc; }
+        .form-input:focus,
+        .form-select:focus {
+            border-color: var(--ks-primary);
+            box-shadow: 0 0 0 3px rgba(50, 157, 206, 0.12);
+        }
+        .form-input::placeholder { color: #b7c2cc; }
+
+        /* 下拉框 */
+        .form-select {
+            padding-right: 36px;
+            cursor: pointer;
+            appearance: none;
+            background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2379879c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e") right 10px center/16px no-repeat;
+        }
+        .form-select:hover {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23329dce' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
+        }
+
+        /* 文本域 */
+        .form-textarea {
+            height: auto;
+            min-height: 88px;
+            padding: 10px 12px;
+            resize: vertical;
+            font-family: inherit;
+            line-height: 1.5;
+        }
+
+        /* 帮助文本 */
+        .form-help { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+        /* 资源配置 */
+        .resource-inputs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .resource-input label { display: block; font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500; }
+
+        /* 容器卡片 */
+        .container-card {
+            background: #f9fbfd;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .container-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .container-title {
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+        }
+        .container-title svg { width: 16px; height: 16px; color: var(--ks-primary); }
+        .remove-btn {
+            color: var(--ks-danger);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .remove-btn:hover { background: rgba(202, 38, 33, 0.08); }
+
+        /* 添加容器按钮 */
+        .add-container-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px;
+            border: 2px dashed #d8dee5;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            justify-content: center;
+            transition: all 0.2s ease;
+            background: #fff;
+            font-size: 13px;
+        }
+        .add-container-btn:hover { border-color: var(--ks-primary); color: var(--ks-primary); background: rgba(50, 157, 206, 0.03); }
+
+        /* 端口/环境变量行 */
+        .port-row, .env-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .port-row input, .port-row select,
         .env-row input { flex: 1; }
-        .create-footer { padding: 16px 24px; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); position: sticky; bottom: 0; }
-        .footer-left { display: flex; gap: 12px; }
-        .footer-right { display: flex; gap: 12px; }
-        .switch-group { display: flex; align-items: center; gap: 12px; }
-        .switch { position: relative; width: 44px; height: 24px; }
+        .port-row .add-row-btn,
+        .env-row .add-row-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .port-row .add-row-btn:hover,
+        .env-row .add-row-btn:hover {
+            border-color: var(--ks-primary);
+            color: var(--ks-primary);
+            background: rgba(50, 157, 206, 0.03);
+        }
+
+        /* 开关组件 */
+        .switch-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: #f9fbfd;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+        .switch {
+            position: relative;
+            width: 40px;
+            height: 22px;
+            flex-shrink: 0;
+        }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .switch-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: var(--border-color); border-radius: 24px; transition: 0.3s; }
-        .switch-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+        .switch-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #d8dee5;
+            border-radius: 22px;
+            transition: all 0.3s ease;
+        }
+        .switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
         .switch input:checked + .switch-slider { background: var(--ks-primary); }
-        .switch input:checked + .switch-slider:before { transform: translateX(20px); }
+        .switch input:checked + .switch-slider:before { transform: translateX(18px); }
+        .switch-label { font-size: 13px; color: var(--text-primary); }
+
+        /* 页脚 */
+        .create-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            position: sticky;
+            bottom: 0;
+        }
+        .footer-left, .footer-right { display: flex; gap: 12px; }
     </style>
 </head>
 <body>
@@ -69,7 +300,7 @@
             <main class="ks-main ks-main-with-sidebar">
                 ${getHeaderHTML([{text: '工作台', href: 'index.html'}, {text: '工作负载', href: 'workloads.html'}, {text: '创建 Deployment'}])}
                 <div class="ks-content">
-                    <div class="ks-card" style="padding: 0;">
+                    <div class="ks-card create-page" style="padding: 0;">
                         <div class="create-header">
                             <div class="create-title">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
@@ -209,7 +440,7 @@
                                                     <option value="TCP">TCP</option>
                                                     <option value="UDP">UDP</option>
                                                 </select>
-                                                <button class="ks-btn ks-btn-default" style="padding: 8px;">
+                                                <button class="add-row-btn">
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                                                 </button>
                                             </div>
@@ -219,7 +450,7 @@
                                             <div class="env-row">
                                                 <input type="text" class="form-input" placeholder="变量名">
                                                 <input type="text" class="form-input" placeholder="变量值">
-                                                <button class="ks-btn ks-btn-default" style="padding: 8px;">
+                                                <button class="add-row-btn">
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                                                 </button>
                                             </div>
@@ -228,7 +459,7 @@
                                 </div>
 
                                 <div class="add-container-btn">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                                     添加容器
                                 </div>
                             </div>
@@ -243,13 +474,13 @@
                                     <div class="form-group">
                                         <div class="switch-group">
                                             <label class="switch"><input type="checkbox" checked><span class="switch-slider"></span></label>
-                                            <span>启用存活探针 (Liveness Probe)</span>
+                                            <span class="switch-label">启用存活探针 (Liveness Probe)</span>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <div class="switch-group">
                                             <label class="switch"><input type="checkbox" checked><span class="switch-slider"></span></label>
-                                            <span>启用就绪探针 (Readiness Probe)</span>
+                                            <span class="switch-label">启用就绪探针 (Readiness Probe)</span>
                                         </div>
                                     </div>
                                 </div>

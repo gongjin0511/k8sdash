@@ -749,52 +749,394 @@ code {
 }
 
 /* =============================================
-   表单元素
+   表单元素 - 高级样式
    ============================================= */
 
-.ks-select {
-    padding: 8px 12px;
+/* 输入框基础 */
+.ks-input,
+input.form-input,
+.form-input {
+    height: 36px;
+    padding: 0 12px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
-    font-size: 12px;
+    font-size: 13px;
     color: var(--text-primary);
     background: #fff;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.ks-select:hover {
-    border-color: var(--ks-primary);
-}
-
-.ks-select:focus {
+    transition: all 0.2s ease;
     outline: none;
+    width: 100%;
+}
+
+.ks-input:hover,
+.form-input:hover {
+    border-color: #b8c3ce;
+}
+
+.ks-input:focus,
+.form-input:focus {
     border-color: var(--ks-primary);
-    box-shadow: 0 0 0 2px rgba(50, 157, 206, 0.1);
+    box-shadow: 0 0 0 3px rgba(50, 157, 206, 0.12);
 }
 
-.ks-input {
-    padding: 8px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 12px;
-    color: var(--text-primary);
-    background: #fff;
-    transition: all 0.2s;
-}
-
-.ks-input:hover {
-    border-color: var(--ks-primary);
-}
-
-.ks-input:focus {
-    outline: none;
-    border-color: var(--ks-primary);
-    box-shadow: 0 0 0 2px rgba(50, 157, 206, 0.1);
-}
-
-.ks-input::placeholder {
+.ks-input::placeholder,
+.form-input::placeholder {
     color: var(--text-light);
+}
+
+.ks-input:disabled,
+.form-input:disabled {
+    background: var(--bg-page);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* 下拉选择框 - 高级样式 */
+.ks-select,
+select.form-select,
+.form-select {
+    height: 36px;
+    padding: 0 36px 0 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--text-primary);
+    background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2379879c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e") right 10px center/16px no-repeat;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.ks-select:hover,
+.form-select:hover {
+    border-color: #b8c3ce;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23329dce' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
+}
+
+.ks-select:focus,
+.form-select:focus {
+    border-color: var(--ks-primary);
+    box-shadow: 0 0 0 3px rgba(50, 157, 206, 0.12);
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23329dce' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
+}
+
+/* 文本域 */
+.ks-textarea,
+textarea.form-textarea {
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--text-primary);
+    background: #fff;
+    transition: all 0.2s ease;
+    outline: none;
+    resize: vertical;
+    min-height: 100px;
+    line-height: 1.6;
+    font-family: inherit;
+}
+
+.ks-textarea:focus {
+    border-color: var(--ks-primary);
+    box-shadow: 0 0 0 3px rgba(50, 157, 206, 0.12);
+}
+
+/* 表单组 */
+.ks-form-group {
+    margin-bottom: 20px;
+}
+
+.ks-form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.ks-form-label .required {
+    color: var(--ks-danger);
+    margin-left: 2px;
+}
+
+.ks-form-hint {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+}
+
+.ks-form-error {
+    font-size: 12px;
+    color: var(--ks-danger);
+    margin-top: 6px;
+}
+
+/* 输入框组 */
+.ks-input-group {
+    display: flex;
+    align-items: stretch;
+}
+
+.ks-input-group .ks-input {
+    border-radius: 4px 0 0 4px;
+}
+
+.ks-input-group-addon {
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    background: var(--bg-page);
+    border: 1px solid var(--border-color);
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+/* 复选框 - 高级样式 */
+.ks-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.ks-checkbox input {
+    display: none;
+}
+
+.ks-checkbox-box {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.ks-checkbox:hover .ks-checkbox-box {
+    border-color: var(--ks-primary);
+}
+
+.ks-checkbox input:checked + .ks-checkbox-box {
+    background: var(--ks-primary);
+    border-color: var(--ks-primary);
+}
+
+.ks-checkbox input:checked + .ks-checkbox-box svg {
+    display: block;
+}
+
+.ks-checkbox-box svg {
+    width: 10px;
+    height: 10px;
+    stroke: #fff;
+    stroke-width: 3;
+    display: none;
+}
+
+/* 单选框 - 高级样式 */
+.ks-radio {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.ks-radio input {
+    display: none;
+}
+
+.ks-radio-dot {
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    background: #fff;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.ks-radio:hover .ks-radio-dot {
+    border-color: var(--ks-primary);
+}
+
+.ks-radio input:checked + .ks-radio-dot {
+    border-color: var(--ks-primary);
+}
+
+.ks-radio input:checked + .ks-radio-dot::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 8px;
+    height: 8px;
+    background: var(--ks-primary);
+    border-radius: 50%;
+}
+
+/* 开关 - 高级样式 */
+.ks-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.ks-switch input {
+    display: none;
+}
+
+.ks-switch-track {
+    width: 40px;
+    height: 22px;
+    background: var(--border-color);
+    border-radius: 11px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.ks-switch-track::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+}
+
+.ks-switch input:checked + .ks-switch-track {
+    background: var(--ks-primary);
+}
+
+.ks-switch input:checked + .ks-switch-track::after {
+    left: 20px;
+}
+
+/* 数字输入框 */
+.ks-number-input {
+    display: flex;
+    align-items: stretch;
+    width: fit-content;
+}
+
+.ks-number-input input {
+    width: 60px;
+    text-align: center;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+}
+
+.ks-number-btn {
+    width: 32px;
+    background: var(--bg-page);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.ks-number-btn:first-child {
+    border-radius: 4px 0 0 4px;
+}
+
+.ks-number-btn:last-child {
+    border-radius: 0 4px 4px 0;
+}
+
+.ks-number-btn:hover {
+    background: var(--ks-primary);
+    border-color: var(--ks-primary);
+    color: #fff;
+}
+
+/* 搜索输入框 */
+.ks-search-input {
+    position: relative;
+}
+
+.ks-search-input input {
+    padding-left: 36px;
+}
+
+.ks-search-input svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    color: var(--text-light);
+    pointer-events: none;
+}
+
+/* 标签输入框 */
+.ks-tag-input {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px 10px;
+    min-height: 36px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+.ks-tag-input:focus-within {
+    border-color: var(--ks-primary);
+    box-shadow: 0 0 0 3px rgba(50, 157, 206, 0.12);
+}
+
+.ks-tag-input-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    background: rgba(50, 157, 206, 0.1);
+    border-radius: 3px;
+    font-size: 12px;
+    color: var(--ks-primary);
+}
+
+.ks-tag-input-tag button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: var(--ks-primary);
+    opacity: 0.6;
+}
+
+.ks-tag-input-tag button:hover {
+    opacity: 1;
+}
+
+.ks-tag-input input {
+    flex: 1;
+    min-width: 100px;
+    border: none;
+    outline: none;
+    padding: 2px 0;
+    font-size: 13px;
 }
 
 /* =============================================
