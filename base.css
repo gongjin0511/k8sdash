@@ -114,7 +114,30 @@ code {
 .ks-header-left {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 16px;
+}
+
+/* 侧边栏展开按钮（在顶部显示） */
+.ks-sidebar-expand {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+.ks-sidebar-expand:hover {
+    background: #f4f5f7;
+    color: var(--text-primary);
+}
+.ks-sidebar-expand svg {
+    width: 20px;
+    height: 20px;
 }
 
 .ks-header-center {
@@ -308,8 +331,33 @@ code {
     height: var(--header-height);
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 0 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 侧边栏收起按钮 */
+.ks-sidebar-toggle {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+.ks-sidebar-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+.ks-sidebar-toggle svg {
+    width: 16px;
+    height: 16px;
 }
 
 .ks-sidebar-logo {
@@ -794,33 +842,75 @@ input.form-input,
 /* 下拉选择框 - 高级样式 */
 .ks-select,
 select.form-select,
-.form-select {
+.form-select,
+select {
     height: 36px;
-    padding: 0 36px 0 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
+    padding: 0 40px 0 12px;
+    border: 1px solid #d8dee5;
+    border-radius: 6px;
     font-size: 13px;
     color: var(--text-primary);
-    background: #fff url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2379879c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e") right 10px center/16px no-repeat;
+    background-color: #fff;
+    background-image:
+        linear-gradient(to bottom, #fff 0%, #fafbfc 100%),
+        url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2379879c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat, no-repeat;
+    background-position: 0 0, right 12px center;
+    background-size: 100% 100%, 12px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease;
     outline: none;
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    font-weight: 400;
 }
 
 .ks-select:hover,
-.form-select:hover {
+.form-select:hover,
+select:hover {
     border-color: #b8c3ce;
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23329dce' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
+    background-image:
+        linear-gradient(to bottom, #fff 0%, #f5f7f9 100%),
+        url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23329dce' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .ks-select:focus,
-.form-select:focus {
+.form-select:focus,
+select:focus {
     border-color: var(--ks-primary);
-    box-shadow: 0 0 0 3px rgba(50, 157, 206, 0.12);
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23329dce' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
+    box-shadow: 0 0 0 3px rgba(50, 157, 206, 0.15), 0 1px 2px rgba(0, 0, 0, 0.04);
+    background-image:
+        linear-gradient(to bottom, #fff 0%, #fff 100%),
+        url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23329dce' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e");
+}
+
+/* 下拉框选项样式优化 */
+.ks-select option,
+.form-select option,
+select option {
+    padding: 10px 12px;
+    background: #fff;
+    color: var(--text-primary);
+}
+
+.ks-select option:hover,
+.form-select option:hover,
+select option:hover {
+    background: rgba(50, 157, 206, 0.1);
+}
+
+/* 小尺寸下拉框 */
+.ks-select-sm,
+select.form-select-sm {
+    height: 30px;
+    font-size: 12px;
+    padding: 0 32px 0 10px;
+    border-radius: 4px;
+    background-position: 0 0, right 8px center;
+    background-size: 100% 100%, 10px;
 }
 
 /* 文本域 */
@@ -1672,6 +1762,61 @@ textarea.form-textarea {
 
 .ks-mb-lg {
     margin-bottom: 24px;
+}
+
+/* =============================================
+   侧边栏折叠状态
+   ============================================= */
+
+.sidebar-collapsed .ks-sidebar {
+    width: 60px;
+}
+
+.sidebar-collapsed .ks-sidebar-header {
+    padding: 0 10px;
+    justify-content: center;
+}
+
+.sidebar-collapsed .ks-sidebar-logo {
+    justify-content: center;
+}
+
+.sidebar-collapsed .ks-sidebar-logo-text,
+.sidebar-collapsed .ks-sidebar-section-title,
+.sidebar-collapsed .ks-sidebar-item-text,
+.sidebar-collapsed .ks-sidebar-arrow,
+.sidebar-collapsed .ks-sidebar-toggle {
+    display: none;
+}
+
+.sidebar-collapsed .ks-sidebar-item {
+    justify-content: center;
+    padding: 12px;
+    border-left: none;
+}
+
+.sidebar-collapsed .ks-sidebar-item svg {
+    width: 18px;
+    height: 18px;
+}
+
+.sidebar-collapsed .ks-sidebar-item.active {
+    background: var(--ks-dark-light);
+    border-radius: 6px;
+    margin: 2px 8px;
+    padding: 10px;
+}
+
+.sidebar-collapsed .ks-sidebar-submenu {
+    display: none !important;
+}
+
+.sidebar-collapsed .ks-main-with-sidebar {
+    margin-left: 60px;
+}
+
+.sidebar-collapsed .ks-sidebar-expand {
+    display: flex;
 }
 
 /* =============================================

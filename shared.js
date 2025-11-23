@@ -1,12 +1,18 @@
 // 共享的侧边栏 HTML 模板
 function getSidebarHTML(activePage) {
     return `
-        <aside class="ks-sidebar">
+        <aside class="ks-sidebar" id="sidebar">
             <div class="ks-sidebar-header">
                 <a href="index.html" class="ks-sidebar-logo">
                     <div class="ks-sidebar-logo-icon">KS</div>
                     <span class="ks-sidebar-logo-text">KubeSphere</span>
                 </a>
+                <button class="ks-sidebar-toggle" onclick="toggleSidebar()" title="收起菜单">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="11 17 6 12 11 7"/>
+                        <polyline points="18 17 13 12 18 7"/>
+                    </svg>
+                </button>
             </div>
             <nav class="ks-sidebar-nav">
                 <div class="ks-sidebar-section">
@@ -110,7 +116,16 @@ function getHeaderHTML(breadcrumbs) {
 
     return `
         <header class="ks-header">
-            <div class="ks-breadcrumb">${breadcrumbHTML}</div>
+            <div class="ks-header-left">
+                <button class="ks-sidebar-expand" onclick="toggleSidebar()" title="展开菜单">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="3" y1="12" x2="21" y2="12"/>
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <line x1="3" y1="18" x2="21" y2="18"/>
+                    </svg>
+                </button>
+                <div class="ks-breadcrumb">${breadcrumbHTML}</div>
+            </div>
             <div class="ks-header-right">
                 <div class="ks-search">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -140,6 +155,28 @@ function toggleSubmenu(element) {
         submenu.classList.toggle('open');
     }
 }
+
+// 切换侧边栏
+function toggleSidebar() {
+    const layout = document.querySelector('.ks-layout');
+    if (layout) {
+        layout.classList.toggle('sidebar-collapsed');
+        // 保存状态到 localStorage
+        const isCollapsed = layout.classList.contains('sidebar-collapsed');
+        localStorage.setItem('sidebarCollapsed', isCollapsed);
+    }
+}
+
+// 页面加载时恢复侧边栏状态
+document.addEventListener('DOMContentLoaded', function() {
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    if (isCollapsed) {
+        const layout = document.querySelector('.ks-layout');
+        if (layout) {
+            layout.classList.add('sidebar-collapsed');
+        }
+    }
+});
 
 // 切换 Tab
 function switchTab(element) {
